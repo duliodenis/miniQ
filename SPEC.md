@@ -28,7 +28,7 @@ cargo run --example shor_placeholder
 cargo run --bin miniq -- bell
 ```
 
-Future Shor support should be added by implementing QFT, inverse QFT, controlled modular multiplication, modular exponentiation, measurement of the counting register, and continued-fraction postprocessing. The first supported demo should factor 15, not RSA-sized numbers.
+Future Shor support now has its first building block: QFT and inverse QFT over selected qubits. Remaining work includes controlled modular multiplication, modular exponentiation, measurement of the counting register, and continued-fraction postprocessing. The first supported demo should factor 15, not RSA-sized numbers.
 
 ⸻
 
@@ -198,6 +198,8 @@ pub enum Operation {
     Cz { control: usize, target: usize },
     Swap { q1: usize, q2: usize },
     ControlledPhase { control: usize, target: usize, theta: f64 },
+    Qft { qubits: Vec<usize> },
+    InverseQft { qubits: Vec<usize> },
     Measure { target: usize, result: u8 },
     MeasureAll { result: String },
 }
@@ -291,6 +293,9 @@ pub fn controlled_phase(
     target: usize,
     theta: f64
 ) -> Result<(), QuantumError>;
+
+pub fn qft(&mut self, qubits: &[usize]) -> Result<(), QuantumError>;
+pub fn inverse_qft(&mut self, qubits: &[usize]) -> Result<(), QuantumError>;
 
 Low-Level Gate Application
 

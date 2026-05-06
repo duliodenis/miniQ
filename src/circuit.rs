@@ -50,6 +50,12 @@ pub enum Operation {
         target: usize,
         theta: f64,
     },
+    Qft {
+        qubits: Vec<usize>,
+    },
+    InverseQft {
+        qubits: Vec<usize>,
+    },
     Measure {
         target: usize,
         result: u8,
@@ -199,20 +205,57 @@ impl QuantumCircuit {
         theta: f64,
     ) -> Result<(), QuantumError> {
         self.validate_pair(control, target)?;
-        let phase = Complex64::from_polar(1.0, theta);
-        let control_mask = 1usize << control;
-        let target_mask = 1usize << target;
-
-        for (index, amplitude) in self.state.iter_mut().enumerate() {
-            if index & control_mask != 0 && index & target_mask != 0 {
-                *amplitude *= phase;
-            }
-        }
+        self.apply_controlled_phase_unchecked(control, target, theta);
 
         self.operations.push(Operation::ControlledPhase {
             control,
             target,
             theta,
+        });
+        Ok(())
+    }
+
+    pub fn qft(&mut self, qubits: &[usize]) -> Result<(), QuantumError> {
+        self.validate_qubits(qubits)?;
+
+        for target_index in (0..qubits.len()).rev() {
+            let target = qubits[target_index];
+            self.apply_single_qubit_gate(gates::h(), target)?;
+
+            for (control_index, &control) in qubits.iter().enumerate().take(target_index) {
+                let theta =
+                    std::f64::consts::PI / (1usize << (target_index - control_index)) as f64;
+                self.apply_controlled_phase_unchecked(control, target, theta);
+            }
+        }
+
+        self.reverse_qubit_order_unchecked(qubits);
+        self.operations.push(Operation::Qft {
+            qubits: qubits.to_vec(),
+        });
+        Ok(())
+    }
+
+    pub fn inverse_qft(&mut self, qubits: &[usize]) -> Result<(), QuantumError> {
+        self.validate_qubits(qubits)?;
+
+        self.reverse_qubit_order_unchecked(qubits);
+
+        for target_index in 0..qubits.len() {
+            let target = qubits[target_index];
+
+            for control_index in (0..target_index).rev() {
+                let control = qubits[control_index];
+                let theta =
+                    -std::f64::consts::PI / (1usize << (target_index - control_index)) as f64;
+                self.apply_controlled_phase_unchecked(control, target, theta);
+            }
+
+            self.apply_single_qubit_gate(gates::h(), target)?;
+        }
+
+        self.operations.push(Operation::InverseQft {
+            qubits: qubits.to_vec(),
         });
         Ok(())
     }
@@ -326,6 +369,56 @@ impl QuantumCircuit {
             Err(QuantumError::DuplicateQubit { q1, q2 })
         } else {
             Ok(())
+        }
+    }
+
+    fn validate_qubits(&self, qubits: &[usize]) -> Result<(), QuantumError> {
+        if qubits.is_empty() {
+            return Err(QuantumError::InvalidNumQubits);
+        }
+
+        for (position, &qubit) in qubits.iter().enumerate() {
+            self.validate_qubit(qubit)?;
+            if let Some(&duplicate) = qubits[..position].iter().find(|&&seen| seen == qubit) {
+                return Err(QuantumError::DuplicateQubit {
+                    q1: duplicate,
+                    q2: qubit,
+                });
+            }
+        }
+
+        Ok(())
+    }
+
+    fn apply_controlled_phase_unchecked(&mut self, control: usize, target: usize, theta: f64) {
+        let phase = Complex64::from_polar(1.0, theta);
+        let control_mask = 1usize << control;
+        let target_mask = 1usize << target;
+
+        for (index, amplitude) in self.state.iter_mut().enumerate() {
+            if index & control_mask != 0 && index & target_mask != 0 {
+                *amplitude *= phase;
+            }
+        }
+    }
+
+    fn reverse_qubit_order_unchecked(&mut self, qubits: &[usize]) {
+        for index in 0..(qubits.len() / 2) {
+            self.swap_unchecked(qubits[index], qubits[qubits.len() - 1 - index]);
+        }
+    }
+
+    fn swap_unchecked(&mut self, q1: usize, q2: usize) {
+        let q1_mask = 1usize << q1;
+        let q2_mask = 1usize << q2;
+
+        for index in 0..self.state.len() {
+            let q1_bit = index & q1_mask != 0;
+            let q2_bit = index & q2_mask != 0;
+            if !q1_bit && q2_bit {
+                let swapped = index ^ q1_mask ^ q2_mask;
+                self.state.swap(index, swapped);
+            }
         }
     }
 }
