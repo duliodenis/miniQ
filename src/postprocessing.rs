@@ -88,3 +88,36 @@ pub fn factor_from_period(a: u64, n: u64, period: u64) -> Result<Option<(u64, u6
         Ok(None)
     }
 }
+
+pub fn recover_period_from_phase(
+    phase: f64,
+    a: u64,
+    n: u64,
+    max_period: u64,
+) -> Result<Option<u64>, QuantumError> {
+    if n < 2 || max_period == 0 || gcd(a, n) != 1 {
+        return Err(QuantumError::InvalidArithmeticInput);
+    }
+
+    let Some(denominator) = continued_fraction_denominator(phase, max_period) else {
+        return Ok(None);
+    };
+
+    if denominator == 0 {
+        return Ok(None);
+    }
+
+    let mut candidate = denominator;
+    while candidate <= max_period {
+        if mod_pow(a, candidate, n)? == 1 {
+            return Ok(Some(candidate));
+        }
+
+        candidate = match candidate.checked_add(denominator) {
+            Some(next) => next,
+            None => break,
+        };
+    }
+
+    Ok(None)
+}

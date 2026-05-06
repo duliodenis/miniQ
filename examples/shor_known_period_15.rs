@@ -1,4 +1,4 @@
-use mini_q::postprocessing::{factor_from_period, gcd, mod_pow};
+use mini_q::postprocessing::{factor_from_period, gcd, mod_pow, recover_period_from_phase};
 
 fn main() -> anyhow::Result<()> {
     let n = 15;
@@ -10,6 +10,10 @@ fn main() -> anyhow::Result<()> {
     println!("Known period r = {period}");
     println!("gcd(a, N) = {}", gcd(a, n));
     println!("a^r mod N = {}", mod_pow(a, period, n)?);
+    println!(
+        "Recovered r from phase 1/4 = {:?}",
+        recover_period_from_phase(0.25, a, n, 32)?
+    );
 
     match factor_from_period(a, n, period)? {
         Some((factor_1, factor_2)) => {

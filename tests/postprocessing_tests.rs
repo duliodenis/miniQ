@@ -76,3 +76,39 @@ fn factor_from_period_rejects_non_period() {
         Err(QuantumError::InvalidArithmeticInput)
     );
 }
+
+#[test]
+fn recover_period_from_phase_recovers_full_period_from_quarter_phase() {
+    assert_eq!(
+        postprocessing::recover_period_from_phase(0.25, 7, 15, 32),
+        Ok(Some(4))
+    );
+}
+
+#[test]
+fn recover_period_from_phase_checks_multiples_of_reduced_denominator() {
+    assert_eq!(
+        postprocessing::recover_period_from_phase(0.5, 7, 15, 32),
+        Ok(Some(4))
+    );
+}
+
+#[test]
+fn recover_period_from_phase_returns_none_when_no_candidate_validates() {
+    assert_eq!(
+        postprocessing::recover_period_from_phase(0.25, 2, 21, 3),
+        Ok(None)
+    );
+}
+
+#[test]
+fn recover_period_from_phase_rejects_invalid_arithmetic_inputs() {
+    assert_eq!(
+        postprocessing::recover_period_from_phase(0.25, 7, 0, 32),
+        Err(QuantumError::InvalidArithmeticInput)
+    );
+    assert_eq!(
+        postprocessing::recover_period_from_phase(0.25, 5, 15, 32),
+        Err(QuantumError::InvalidArithmeticInput)
+    );
+}

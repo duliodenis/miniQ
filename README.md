@@ -49,4 +49,4 @@ This emulator cannot factor RSA-896. Shor's algorithm for numbers of that size r
 
 ## Future Shor Support
 
-QFT, inverse QFT, a small phase-estimation helper, and classical postprocessing helpers are now available as the first Shor-oriented building blocks. The `shor_known_period_15` example demonstrates Shor-style factor extraction when the period is already known. Future work should add controlled modular multiplication and modular exponentiation circuits so the period can be found by the emulator.
+QFT, inverse QFT, a small phase-estimation helper, and classical postprocessing helpers are now available as the first Shor-oriented building blocks. The `shor_known_period_15` example demonstrates phase-to-period recovery and Shor-style factor extraction for `15`. Future work should add controlled modular multiplication and modular exponentiation circuits so the phase samples can be produced by the emulator for modular functions.
