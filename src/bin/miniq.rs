@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use mini_q::{
-    postprocessing::{factor_from_period, find_period_classically, mod_pow},
+    postprocessing::{factor_via_classical_period_finding, find_period_classically, mod_pow},
     QuantumCircuit,
 };
 
@@ -52,7 +52,7 @@ fn main() -> Result<()> {
                 Some(period) => {
                     println!("Classical period r = {period}");
                     println!("a^r mod N = {}", mod_pow(a, period, n)?);
-                    match factor_from_period(a, n, period)? {
+                    match factor_via_classical_period_finding(a, n, max_period)? {
                         Some((factor_1, factor_2)) => {
                             println!("Factors from r = {factor_1} and {factor_2}");
                         }

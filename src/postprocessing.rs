@@ -139,3 +139,19 @@ pub fn find_period_classically(
 
     Ok(None)
 }
+
+pub fn factor_via_classical_period_finding(
+    a: u64,
+    n: u64,
+    max_period: u64,
+) -> Result<Option<(u64, u64)>, QuantumError> {
+    let Some(period) = find_period_classically(a, n, max_period)? else {
+        return Ok(None);
+    };
+
+    if period % 2 == 1 {
+        return Ok(None);
+    }
+
+    factor_from_period(a, n, period)
+}

@@ -141,3 +141,27 @@ fn find_period_classically_rejects_invalid_inputs() {
         Err(QuantumError::InvalidArithmeticInput)
     );
 }
+
+#[test]
+fn factor_via_classical_period_finding_factors_fifteen() {
+    assert_eq!(
+        postprocessing::factor_via_classical_period_finding(2, 15, 32),
+        Ok(Some((3, 5)))
+    );
+}
+
+#[test]
+fn factor_via_classical_period_finding_returns_none_when_period_is_not_found() {
+    assert_eq!(
+        postprocessing::factor_via_classical_period_finding(2, 15, 3),
+        Ok(None)
+    );
+}
+
+#[test]
+fn factor_via_classical_period_finding_rejects_invalid_inputs() {
+    assert_eq!(
+        postprocessing::factor_via_classical_period_finding(5, 15, 32),
+        Err(QuantumError::InvalidArithmeticInput)
+    );
+}
