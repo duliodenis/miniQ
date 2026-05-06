@@ -24,11 +24,13 @@ cargo run --example bell_state
 cargo run --example superposition
 cargo run --example swap_demo
 cargo run --example grover_2qubit_demo
+cargo run --example period_finding_classical_demo
 cargo run --example phase_estimation_demo
 cargo run --example shor_known_period_15
 cargo run --example shor_phase_sample_15
 cargo run --example shor_placeholder
 cargo run --bin miniq -- bell
+cargo run --bin miniq -- period
 ```
 
 Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, a small phase-estimation helper for known controlled-phase eigenvalues, and postprocessing helpers for gcd, modular exponentiation, continued fractions, classical period finding, phase-to-period recovery, and factor extraction from a known period. The `shor_known_period_15` example factors 15 from a supplied and classically verified period, and `shor_phase_sample_15` factors 15 from a supplied phase sample. Remaining work includes controlled modular multiplication and modular exponentiation circuits so the emulator can produce phase samples for modular functions.

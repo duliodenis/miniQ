@@ -30,6 +30,7 @@ cargo run --example bell_state
 cargo run --example superposition
 cargo run --example swap_demo
 cargo run --example grover_2qubit_demo
+cargo run --example period_finding_classical_demo
 cargo run --example phase_estimation_demo
 cargo run --example shor_known_period_15
 cargo run --example shor_phase_sample_15
@@ -42,6 +43,7 @@ The CLI also provides a few built-in demos:
 cargo run --bin miniq -- bell
 cargo run --bin miniq -- superposition
 cargo run --bin miniq -- swap
+cargo run --bin miniq -- period
 ```
 
 ## RSA-896
