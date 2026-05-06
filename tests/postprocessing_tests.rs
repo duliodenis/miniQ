@@ -52,3 +52,27 @@ fn continued_fraction_denominator_rejects_invalid_inputs() {
         None
     );
 }
+
+#[test]
+fn factor_from_period_factors_fifteen_with_known_period() {
+    assert_eq!(
+        postprocessing::factor_from_period(7, 15, 4),
+        Ok(Some((3, 5)))
+    );
+}
+
+#[test]
+fn factor_from_period_rejects_odd_period() {
+    assert_eq!(
+        postprocessing::factor_from_period(7, 15, 3),
+        Err(QuantumError::InvalidArithmeticInput)
+    );
+}
+
+#[test]
+fn factor_from_period_rejects_non_period() {
+    assert_eq!(
+        postprocessing::factor_from_period(7, 15, 2),
+        Err(QuantumError::InvalidArithmeticInput)
+    );
+}

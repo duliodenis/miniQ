@@ -64,3 +64,27 @@ pub fn continued_fraction_denominator(phase: f64, max_denominator: u64) -> Optio
 
     Some(best_denominator)
 }
+
+pub fn factor_from_period(a: u64, n: u64, period: u64) -> Result<Option<(u64, u64)>, QuantumError> {
+    if n < 2 || period == 0 || period % 2 == 1 {
+        return Err(QuantumError::InvalidArithmeticInput);
+    }
+
+    if gcd(a, n) != 1 || mod_pow(a, period, n)? != 1 {
+        return Err(QuantumError::InvalidArithmeticInput);
+    }
+
+    let half_power = mod_pow(a, period / 2, n)?;
+    if half_power == n - 1 {
+        return Ok(None);
+    }
+
+    let factor_1 = gcd(half_power.saturating_sub(1), n);
+    let factor_2 = gcd(half_power + 1, n);
+
+    if factor_1 > 1 && factor_1 < n && factor_2 > 1 && factor_2 < n {
+        Ok(Some((factor_1.min(factor_2), factor_1.max(factor_2))))
+    } else {
+        Ok(None)
+    }
+}
