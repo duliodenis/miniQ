@@ -13,6 +13,7 @@ The simulator uses little-endian qubit indexing internally: qubit `0` is the lea
 - Measurement with state collapse and renormalization
 - Operation history through `Operation`
 - Probability/state inspection helpers
+- Construction helpers including `from_basis_state` and `num_qubits`
 
 Gate application updates the state vector directly. It does not build full `2^n x 2^n` matrices.
 

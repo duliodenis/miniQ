@@ -78,9 +78,7 @@ impl QuantumCircuit {
             return Err(QuantumError::InvalidNumQubits);
         }
 
-        let len = 1usize
-            .checked_shl(num_qubits as u32)
-            .ok_or(QuantumError::InvalidNumQubits)?;
+        let len = Self::state_len(num_qubits)?;
         let mut state = Vec::new();
         state
             .try_reserve_exact(len)
@@ -93,6 +91,21 @@ impl QuantumCircuit {
             state,
             operations: Vec::new(),
         })
+    }
+
+    pub fn from_basis_state(num_qubits: usize, basis_index: usize) -> Result<Self, QuantumError> {
+        let len = Self::state_len(num_qubits)?;
+        if basis_index >= len {
+            return Err(QuantumError::InvalidQubit {
+                index: basis_index,
+                num_qubits,
+            });
+        }
+
+        let mut circuit = Self::new(num_qubits)?;
+        circuit.state[0] = Complex64::new(0.0, 0.0);
+        circuit.state[basis_index] = Complex64::new(1.0, 0.0);
+        Ok(circuit)
     }
 
     pub fn x(&mut self, target: usize) -> Result<(), QuantumError> {
@@ -339,12 +352,12 @@ impl QuantumCircuit {
         &self.operations
     }
 
-    pub(crate) fn state_mut(&mut self) -> &mut [Complex64] {
-        &mut self.state
+    pub fn num_qubits(&self) -> usize {
+        self.num_qubits
     }
 
-    pub(crate) fn num_qubits(&self) -> usize {
-        self.num_qubits
+    pub(crate) fn state_mut(&mut self) -> &mut [Complex64] {
+        &mut self.state
     }
 
     pub(crate) fn push_operation(&mut self, operation: Operation) {
@@ -370,6 +383,16 @@ impl QuantumCircuit {
         } else {
             Ok(())
         }
+    }
+
+    fn state_len(num_qubits: usize) -> Result<usize, QuantumError> {
+        if num_qubits == 0 || num_qubits >= usize::BITS as usize {
+            return Err(QuantumError::InvalidNumQubits);
+        }
+
+        1usize
+            .checked_shl(num_qubits as u32)
+            .ok_or(QuantumError::InvalidNumQubits)
     }
 
     fn validate_qubits(&self, qubits: &[usize]) -> Result<(), QuantumError> {

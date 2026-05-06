@@ -136,6 +136,11 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+Additional construction helpers:
+
+pub fn from_basis_state(num_qubits: usize, basis_index: usize) -> Result<Self, QuantumError>;
+pub fn num_qubits(&self) -> usize;
+
 ⸻
 
 Qubit Indexing Rule
@@ -403,6 +408,10 @@ State Inspection
 Implement:
 
 pub fn state(&self) -> &[Complex64];
+
+Implement:
+
+pub fn num_qubits(&self) -> usize;
 
 Implement:
 

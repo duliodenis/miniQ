@@ -15,7 +15,28 @@ fn probability(qc: &QuantumCircuit, label: &str) -> f64 {
 #[test]
 fn initial_state_is_zero_basis_state() {
     let qc = QuantumCircuit::new(3).unwrap();
+    assert_eq!(qc.num_qubits(), 3);
     assert!((probability(&qc, "000") - 1.0).abs() < EPS);
+}
+
+#[test]
+fn from_basis_state_initializes_requested_basis_state() {
+    let qc = QuantumCircuit::from_basis_state(3, 5).unwrap();
+
+    assert_eq!(qc.num_qubits(), 3);
+    assert!(qc.operations().is_empty());
+    assert!((probability(&qc, "101") - 1.0).abs() < EPS);
+}
+
+#[test]
+fn from_basis_state_rejects_out_of_range_basis_index() {
+    assert!(matches!(
+        QuantumCircuit::from_basis_state(3, 8),
+        Err(QuantumError::InvalidQubit {
+            index: 8,
+            num_qubits: 3
+        })
+    ));
 }
 
 #[test]
