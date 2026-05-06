@@ -27,6 +27,7 @@ cargo run --example bell_state
 cargo run --example superposition
 cargo run --example swap_demo
 cargo run --example grover_2qubit_demo
+cargo run --example phase_estimation_demo
 cargo run --example shor_placeholder
 ```
 
