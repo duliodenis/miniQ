@@ -29,7 +29,7 @@ cargo run --example shor_placeholder
 cargo run --bin miniq -- bell
 ```
 
-Future Shor support now has its first building block: QFT and inverse QFT over selected qubits. Remaining work includes controlled modular multiplication, modular exponentiation, measurement of the counting register, and continued-fraction postprocessing. The first supported demo should factor 15, not RSA-sized numbers.
+Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, and a small phase-estimation helper for known controlled-phase eigenvalues. Remaining work includes controlled modular multiplication, modular exponentiation, measurement of the counting register, and continued-fraction postprocessing. The first supported demo should factor 15, not RSA-sized numbers.
 
 ⸻
 

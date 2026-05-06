@@ -9,6 +9,7 @@ The simulator uses little-endian qubit indexing internally: qubit `0` is the lea
 - Single-qubit gates: X, Y, Z, H, S, T, Rx, Ry, Rz
 - Two-qubit gates: CNOT, CZ, SWAP, controlled phase
 - Register transforms: QFT and inverse QFT
+- Algorithm helper: phase estimation for a known controlled-phase eigenvalue
 - Measurement with state collapse and renormalization
 - Operation history through `Operation`
 - Probability/state inspection helpers
@@ -45,4 +46,4 @@ This emulator cannot factor RSA-896. Shor's algorithm for numbers of that size r
 
 ## Future Shor Support
 
-QFT and inverse QFT are now available as the first Shor-oriented building blocks. Future work should add controlled modular multiplication, modular exponentiation, and continued-fraction postprocessing. The first realistic target should be a toy example such as factoring `15`, not RSA-sized integers.
+QFT, inverse QFT, and a small phase-estimation helper are now available as the first Shor-oriented building blocks. Future work should add controlled modular multiplication, modular exponentiation, and continued-fraction postprocessing. The first realistic target should be a toy example such as factoring `15`, not RSA-sized integers.
