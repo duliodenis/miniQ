@@ -1,6 +1,6 @@
-# mini-q
+# miniQ
 
-`mini-q` is a small educational quantum computer emulator written in Rust. It uses a full state-vector simulator, so an `n`-qubit circuit is represented by `2^n` complex amplitudes stored as `Vec<Complex64>`.
+`miniQ` is a small educational quantum computer emulator written in Rust. It uses a full state-vector simulator, so an `n`-qubit circuit is represented by `2^n` complex amplitudes stored as `Vec<Complex64>`.
 
 The simulator uses little-endian qubit indexing internally: qubit `0` is the least significant bit of the basis-state index. Displayed bitstrings are printed most-significant-bit first, so index `5` in a three-qubit circuit appears as `101`.
 
@@ -32,6 +32,7 @@ cargo run --example swap_demo
 cargo run --example grover_2qubit_demo
 cargo run --example phase_estimation_demo
 cargo run --example shor_known_period_15
+cargo run --example shor_phase_sample_15
 cargo run --example shor_placeholder
 ```
 
@@ -49,4 +50,4 @@ This emulator cannot factor RSA-896. Shor's algorithm for numbers of that size r
 
 ## Future Shor Support
 
-QFT, inverse QFT, a small phase-estimation helper, and classical postprocessing helpers are now available as the first Shor-oriented building blocks. The `shor_known_period_15` example demonstrates phase-to-period recovery and Shor-style factor extraction for `15`. Future work should add controlled modular multiplication and modular exponentiation circuits so the phase samples can be produced by the emulator for modular functions.
+QFT, inverse QFT, a small phase-estimation helper, and classical postprocessing helpers are now available as the first Shor-oriented building blocks. The `shor_known_period_15` example demonstrates factor extraction when a period is available, while `shor_phase_sample_15` turns a supplied phase sample into a period and factors for `15`. Future work should add controlled modular multiplication and modular exponentiation circuits so the phase samples can be produced by the emulator for modular functions.
