@@ -50,6 +50,11 @@ pub enum Operation {
         target: usize,
         theta: f64,
     },
+    ControlledBasisPermutation {
+        control: usize,
+        targets: Vec<usize>,
+        permutation: Vec<usize>,
+    },
     Qft {
         qubits: Vec<usize>,
     },
@@ -273,6 +278,46 @@ impl QuantumCircuit {
         Ok(())
     }
 
+    pub fn apply_controlled_basis_permutation(
+        &mut self,
+        control: usize,
+        targets: &[usize],
+        permutation: &[usize],
+    ) -> Result<(), QuantumError> {
+        self.validate_qubit(control)?;
+        self.validate_qubits(targets)?;
+        if targets.contains(&control) {
+            return Err(QuantumError::DuplicateQubit {
+                q1: control,
+                q2: control,
+            });
+        }
+
+        self.validate_permutation(targets.len(), permutation)?;
+
+        let control_mask = 1usize << control;
+        let mut next_state = vec![Complex64::new(0.0, 0.0); self.state.len()];
+
+        for (index, &amplitude) in self.state.iter().enumerate() {
+            let destination = if index & control_mask == 0 {
+                index
+            } else {
+                let target_value = Self::extract_register_value(index, targets);
+                let mapped_value = permutation[target_value];
+                Self::replace_register_value(index, targets, mapped_value)
+            };
+            next_state[destination] += amplitude;
+        }
+
+        self.state = next_state;
+        self.operations.push(Operation::ControlledBasisPermutation {
+            control,
+            targets: targets.to_vec(),
+            permutation: permutation.to_vec(),
+        });
+        Ok(())
+    }
+
     pub fn apply_single_qubit_gate(
         &mut self,
         matrix: [[Complex64; 2]; 2],
@@ -413,6 +458,29 @@ impl QuantumCircuit {
         Ok(())
     }
 
+    fn validate_permutation(
+        &self,
+        num_targets: usize,
+        permutation: &[usize],
+    ) -> Result<(), QuantumError> {
+        let len = 1usize
+            .checked_shl(num_targets as u32)
+            .ok_or(QuantumError::InvalidPermutation)?;
+        if permutation.len() != len {
+            return Err(QuantumError::InvalidPermutation);
+        }
+
+        let mut seen = vec![false; len];
+        for &value in permutation {
+            if value >= len || seen[value] {
+                return Err(QuantumError::InvalidPermutation);
+            }
+            seen[value] = true;
+        }
+
+        Ok(())
+    }
+
     fn apply_controlled_phase_unchecked(&mut self, control: usize, target: usize, theta: f64) {
         let phase = Complex64::from_polar(1.0, theta);
         let control_mask = 1usize << control;
@@ -443,5 +511,28 @@ impl QuantumCircuit {
                 self.state.swap(index, swapped);
             }
         }
+    }
+
+    fn extract_register_value(index: usize, targets: &[usize]) -> usize {
+        targets
+            .iter()
+            .enumerate()
+            .fold(0usize, |value, (position, &qubit)| {
+                value | (((index >> qubit) & 1) << position)
+            })
+    }
+
+    fn replace_register_value(index: usize, targets: &[usize], value: usize) -> usize {
+        targets
+            .iter()
+            .enumerate()
+            .fold(index, |updated, (position, &qubit)| {
+                let mask = 1usize << qubit;
+                if (value >> position) & 1 == 1 {
+                    updated | mask
+                } else {
+                    updated & !mask
+                }
+            })
     }
 }

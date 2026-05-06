@@ -8,6 +8,7 @@ The simulator uses little-endian qubit indexing internally: qubit `0` is the lea
 
 - Single-qubit gates: X, Y, Z, H, S, T, Rx, Ry, Rz
 - Two-qubit gates: CNOT, CZ, SWAP, controlled phase
+- Controlled basis permutations for toy algorithm infrastructure
 - Register transforms: QFT and inverse QFT
 - Algorithm helper: phase estimation for a known controlled-phase eigenvalue
 - Postprocessing helpers for `gcd`, modular exponentiation, and continued fractions
@@ -16,7 +17,7 @@ The simulator uses little-endian qubit indexing internally: qubit `0` is the lea
 - Probability/state inspection helpers
 - Construction helpers including `from_basis_state` and `num_qubits`
 
-Gate application updates the state vector directly. It does not build full `2^n x 2^n` matrices.
+Gate and permutation application updates the state vector directly. It does not build full `2^n x 2^n` matrices.
 
 ## Memory Growth
 

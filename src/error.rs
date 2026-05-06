@@ -8,6 +8,8 @@ pub enum QuantumError {
     DuplicateQubit { q1: usize, q2: usize },
     #[error("invalid 2x2 gate matrix")]
     InvalidMatrix,
+    #[error("invalid basis permutation")]
+    InvalidPermutation,
     #[error("invalid number of qubits")]
     InvalidNumQubits,
     #[error("invalid arithmetic input")]

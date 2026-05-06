@@ -33,7 +33,7 @@ cargo run --bin miniq -- bell
 cargo run --bin miniq -- period
 ```
 
-Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, a small phase-estimation helper for known controlled-phase eigenvalues, and postprocessing helpers for gcd, modular exponentiation, continued fractions, classical period finding, phase-to-period recovery, factor extraction from a known period, and factor extraction via classical period finding. The `shor_known_period_15` example factors 15 from a supplied and classically verified period, and `shor_phase_sample_15` factors 15 from a supplied phase sample. Remaining work includes controlled modular multiplication and modular exponentiation circuits so the emulator can produce phase samples for modular functions.
+Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, controlled basis permutations, a small phase-estimation helper for known controlled-phase eigenvalues, and postprocessing helpers for gcd, modular exponentiation, continued fractions, classical period finding, phase-to-period recovery, factor extraction from a known period, and factor extraction via classical period finding. The `shor_known_period_15` example factors 15 from a supplied and classically verified period, and `shor_phase_sample_15` factors 15 from a supplied phase sample. Remaining work includes controlled modular multiplication and modular exponentiation circuits so the emulator can produce phase samples for modular functions.
 
 ⸻
 
@@ -208,6 +208,7 @@ pub enum Operation {
     Cz { control: usize, target: usize },
     Swap { q1: usize, q2: usize },
     ControlledPhase { control: usize, target: usize, theta: f64 },
+    ControlledBasisPermutation { control: usize, targets: Vec<usize>, permutation: Vec<usize> },
     Qft { qubits: Vec<usize> },
     InverseQft { qubits: Vec<usize> },
     Measure { target: usize, result: u8 },
@@ -306,6 +307,12 @@ pub fn controlled_phase(
 
 pub fn qft(&mut self, qubits: &[usize]) -> Result<(), QuantumError>;
 pub fn inverse_qft(&mut self, qubits: &[usize]) -> Result<(), QuantumError>;
+pub fn apply_controlled_basis_permutation(
+    &mut self,
+    control: usize,
+    targets: &[usize],
+    permutation: &[usize]
+) -> Result<(), QuantumError>;
 
 Low-Level Gate Application
 
