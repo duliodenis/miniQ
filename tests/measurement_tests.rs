@@ -10,13 +10,9 @@ fn measurement_collapses_and_remains_normalized() {
 
     let probabilities = qc.probabilities(0.0);
     let measured_label = result.to_string();
-    assert_eq!(
-        probabilities
-            .into_iter()
-            .find(|(label, _)| label.as_str() == measured_label)
-            .map(|(_, probability)| probability),
-        Some(1.0)
-    );
+    assert_eq!(probabilities.len(), 1);
+    assert_eq!(probabilities[0].0, measured_label);
+    assert!((probabilities[0].1 - 1.0).abs() < 1e-10);
     assert_eq!(
         qc.operations().last(),
         Some(&Operation::Measure { target: 0, result })
