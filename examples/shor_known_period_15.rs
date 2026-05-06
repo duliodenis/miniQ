@@ -1,4 +1,6 @@
-use mini_q::postprocessing::{factor_from_period, gcd, mod_pow, recover_period_from_phase};
+use mini_q::postprocessing::{
+    factor_from_period, find_period_classically, gcd, mod_pow, recover_period_from_phase,
+};
 
 fn main() -> anyhow::Result<()> {
     let n = 15;
@@ -8,6 +10,10 @@ fn main() -> anyhow::Result<()> {
     println!("N = {n}");
     println!("a = {a}");
     println!("Known period r = {period}");
+    println!(
+        "Classically verified period r = {:?}",
+        find_period_classically(a, n, 32)?
+    );
     println!("gcd(a, N) = {}", gcd(a, n));
     println!("a^r mod N = {}", mod_pow(a, period, n)?);
     println!(

@@ -112,3 +112,32 @@ fn recover_period_from_phase_rejects_invalid_arithmetic_inputs() {
         Err(QuantumError::InvalidArithmeticInput)
     );
 }
+
+#[test]
+fn find_period_classically_finds_smallest_period() {
+    assert_eq!(
+        postprocessing::find_period_classically(7, 15, 32),
+        Ok(Some(4))
+    );
+    assert_eq!(
+        postprocessing::find_period_classically(2, 15, 32),
+        Ok(Some(4))
+    );
+}
+
+#[test]
+fn find_period_classically_returns_none_when_max_period_is_too_small() {
+    assert_eq!(postprocessing::find_period_classically(7, 15, 3), Ok(None));
+}
+
+#[test]
+fn find_period_classically_rejects_invalid_inputs() {
+    assert_eq!(
+        postprocessing::find_period_classically(5, 15, 32),
+        Err(QuantumError::InvalidArithmeticInput)
+    );
+    assert_eq!(
+        postprocessing::find_period_classically(7, 15, 0),
+        Err(QuantumError::InvalidArithmeticInput)
+    );
+}

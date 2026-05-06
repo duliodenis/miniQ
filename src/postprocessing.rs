@@ -121,3 +121,21 @@ pub fn recover_period_from_phase(
 
     Ok(None)
 }
+
+pub fn find_period_classically(
+    a: u64,
+    n: u64,
+    max_period: u64,
+) -> Result<Option<u64>, QuantumError> {
+    if n < 2 || max_period == 0 || gcd(a, n) != 1 {
+        return Err(QuantumError::InvalidArithmeticInput);
+    }
+
+    for period in 1..=max_period {
+        if mod_pow(a, period, n)? == 1 {
+            return Ok(Some(period));
+        }
+    }
+
+    Ok(None)
+}
