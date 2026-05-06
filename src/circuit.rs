@@ -3,21 +3,60 @@ use num_complex::Complex64;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Operation {
-    X { target: usize },
-    Y { target: usize },
-    Z { target: usize },
-    H { target: usize },
-    S { target: usize },
-    T { target: usize },
-    Rx { target: usize, theta: f64 },
-    Ry { target: usize, theta: f64 },
-    Rz { target: usize, theta: f64 },
-    CNot { control: usize, target: usize },
-    Cz { control: usize, target: usize },
-    Swap { q1: usize, q2: usize },
-    ControlledPhase { control: usize, target: usize, theta: f64 },
-    Measure { target: usize, result: u8 },
-    MeasureAll { result: String },
+    X {
+        target: usize,
+    },
+    Y {
+        target: usize,
+    },
+    Z {
+        target: usize,
+    },
+    H {
+        target: usize,
+    },
+    S {
+        target: usize,
+    },
+    T {
+        target: usize,
+    },
+    Rx {
+        target: usize,
+        theta: f64,
+    },
+    Ry {
+        target: usize,
+        theta: f64,
+    },
+    Rz {
+        target: usize,
+        theta: f64,
+    },
+    CNot {
+        control: usize,
+        target: usize,
+    },
+    Cz {
+        control: usize,
+        target: usize,
+    },
+    Swap {
+        q1: usize,
+        q2: usize,
+    },
+    ControlledPhase {
+        control: usize,
+        target: usize,
+        theta: f64,
+    },
+    Measure {
+        target: usize,
+        result: u8,
+    },
+    MeasureAll {
+        result: String,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -184,7 +223,11 @@ impl QuantumCircuit {
         target: usize,
     ) -> Result<(), QuantumError> {
         self.validate_qubit(target)?;
-        if matrix.iter().flatten().any(|value| !value.re.is_finite() || !value.im.is_finite()) {
+        if matrix
+            .iter()
+            .flatten()
+            .any(|value| !value.re.is_finite() || !value.im.is_finite())
+        {
             return Err(QuantumError::InvalidMatrix);
         }
 
@@ -234,7 +277,10 @@ impl QuantumCircuit {
     }
 
     pub fn norm(&self) -> f64 {
-        self.state.iter().map(|amplitude| amplitude.norm_sqr()).sum()
+        self.state
+            .iter()
+            .map(|amplitude| amplitude.norm_sqr())
+            .sum()
     }
 
     pub fn assert_normalized(&self, tolerance: f64) -> Result<(), QuantumError> {
