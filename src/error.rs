@@ -10,6 +10,8 @@ pub enum QuantumError {
     InvalidMatrix,
     #[error("invalid number of qubits")]
     InvalidNumQubits,
+    #[error("invalid arithmetic input")]
+    InvalidArithmeticInput,
     #[error("state is not normalized; norm is {norm}")]
     StateNotNormalized { norm: f64 },
 }
