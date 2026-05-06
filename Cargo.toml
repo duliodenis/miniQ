@@ -1,0 +1,17 @@
+[package]
+name = "mini-q"
+version = "0.1.0"
+edition = "2021"
+description = "A small educational quantum computer emulator using state-vector simulation."
+license = "MIT"
+
+[lib]
+name = "mini_q"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+num-complex = "0.4"
+rand = "0.8"
+thiserror = "1"
