@@ -73,3 +73,28 @@ fn measuring_work_register_collapses_counting_register_to_periodic_pair() {
         .collect();
     assert_eq!(exponents[1] - exponents[0], 4);
 }
+
+#[test]
+fn inverse_qft_on_periodic_counting_pair_has_expected_phase_support() {
+    let mut qc = QuantumCircuit::new(7).unwrap();
+    qc.h(6).unwrap();
+    qc.x(0).unwrap();
+
+    qc.inverse_qft(&[4, 5, 6]).unwrap();
+
+    let probabilities = qc.probabilities(1e-10);
+    let expected = [
+        ("0000001", 0.25),
+        ("0100001", 0.25),
+        ("1000001", 0.25),
+        ("1100001", 0.25),
+    ];
+
+    assert_eq!(probabilities.len(), expected.len());
+    for ((actual_label, actual_probability), (expected_label, expected_probability)) in
+        probabilities.into_iter().zip(expected)
+    {
+        assert_eq!(actual_label, expected_label);
+        assert!((actual_probability - expected_probability).abs() < 1e-10);
+    }
+}
