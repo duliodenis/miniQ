@@ -73,6 +73,12 @@ pub enum Operation {
         power: u64,
         modulus: u64,
     },
+    ModularExponentiation {
+        controls: Vec<usize>,
+        targets: Vec<usize>,
+        base: u64,
+        modulus: u64,
+    },
     Qft {
         qubits: Vec<usize>,
     },
@@ -338,23 +344,7 @@ impl QuantumCircuit {
             });
         }
 
-        let register_len = 1usize
-            .checked_shl(targets.len() as u32)
-            .ok_or(QuantumError::InvalidNumQubits)?;
-        let modulus_usize =
-            usize::try_from(modulus).map_err(|_| QuantumError::InvalidArithmeticInput)?;
-
-        if modulus < 2 || modulus_usize > register_len || gcd(multiplier, modulus) != 1 {
-            return Err(QuantumError::InvalidArithmeticInput);
-        }
-
-        let mut permutation: Vec<usize> = (0..register_len).collect();
-        for (value, mapped) in permutation.iter_mut().enumerate().take(modulus_usize) {
-            *mapped = ((multiplier as u128 * value as u128) % modulus as u128) as usize;
-        }
-        self.validate_permutation(targets.len(), &permutation)?;
-
-        self.apply_controlled_basis_permutation_unchecked(control, targets, &permutation);
+        self.apply_controlled_modular_multiply_unchecked(control, targets, multiplier, modulus)?;
         self.operations.push(Operation::ControlledModularMultiply {
             control,
             targets: targets.to_vec(),
@@ -373,8 +363,16 @@ impl QuantumCircuit {
         modulus: u64,
     ) -> Result<(), QuantumError> {
         let multiplier = mod_pow(base, power, modulus)?;
-        self.controlled_modular_multiply(control, targets, multiplier, modulus)?;
-        self.operations.pop();
+        self.validate_qubit(control)?;
+        self.validate_qubits(targets)?;
+        if targets.contains(&control) {
+            return Err(QuantumError::DuplicateQubit {
+                q1: control,
+                q2: control,
+            });
+        }
+
+        self.apply_controlled_modular_multiply_unchecked(control, targets, multiplier, modulus)?;
         self.operations
             .push(Operation::ControlledModularMultiplyPower {
                 control,
@@ -383,6 +381,43 @@ impl QuantumCircuit {
                 power,
                 modulus,
             });
+        Ok(())
+    }
+
+    pub fn modular_exponentiation(
+        &mut self,
+        controls: &[usize],
+        targets: &[usize],
+        base: u64,
+        modulus: u64,
+    ) -> Result<(), QuantumError> {
+        self.validate_qubits(controls)?;
+        self.validate_qubits(targets)?;
+        for &control in controls {
+            if targets.contains(&control) {
+                return Err(QuantumError::DuplicateQubit {
+                    q1: control,
+                    q2: control,
+                });
+            }
+        }
+
+        for (power_index, &control) in controls.iter().enumerate() {
+            let power = 1u64
+                .checked_shl(power_index as u32)
+                .ok_or(QuantumError::InvalidArithmeticInput)?;
+            let multiplier = mod_pow(base, power, modulus)?;
+            self.apply_controlled_modular_multiply_unchecked(
+                control, targets, multiplier, modulus,
+            )?;
+        }
+
+        self.operations.push(Operation::ModularExponentiation {
+            controls: controls.to_vec(),
+            targets: targets.to_vec(),
+            base,
+            modulus,
+        });
         Ok(())
     }
 
@@ -582,6 +617,33 @@ impl QuantumCircuit {
         }
 
         self.state = next_state;
+    }
+
+    fn apply_controlled_modular_multiply_unchecked(
+        &mut self,
+        control: usize,
+        targets: &[usize],
+        multiplier: u64,
+        modulus: u64,
+    ) -> Result<(), QuantumError> {
+        let register_len = 1usize
+            .checked_shl(targets.len() as u32)
+            .ok_or(QuantumError::InvalidNumQubits)?;
+        let modulus_usize =
+            usize::try_from(modulus).map_err(|_| QuantumError::InvalidArithmeticInput)?;
+
+        if modulus < 2 || modulus_usize > register_len || gcd(multiplier, modulus) != 1 {
+            return Err(QuantumError::InvalidArithmeticInput);
+        }
+
+        let mut permutation: Vec<usize> = (0..register_len).collect();
+        for (value, mapped) in permutation.iter_mut().enumerate().take(modulus_usize) {
+            *mapped = ((multiplier as u128 * value as u128) % modulus as u128) as usize;
+        }
+        self.validate_permutation(targets.len(), &permutation)?;
+
+        self.apply_controlled_basis_permutation_unchecked(control, targets, &permutation);
+        Ok(())
     }
 
     fn reverse_qubit_order_unchecked(&mut self, qubits: &[usize]) {
