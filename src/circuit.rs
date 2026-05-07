@@ -1,4 +1,4 @@
-use crate::{gates, utils::basis_label, QuantumError};
+use crate::{gates, postprocessing::gcd, utils::basis_label, QuantumError};
 use num_complex::Complex64;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -54,6 +54,12 @@ pub enum Operation {
         control: usize,
         targets: Vec<usize>,
         permutation: Vec<usize>,
+    },
+    ControlledModularMultiply {
+        control: usize,
+        targets: Vec<usize>,
+        multiplier: u64,
+        modulus: u64,
     },
     Qft {
         qubits: Vec<usize>,
@@ -295,25 +301,53 @@ impl QuantumCircuit {
 
         self.validate_permutation(targets.len(), permutation)?;
 
-        let control_mask = 1usize << control;
-        let mut next_state = vec![Complex64::new(0.0, 0.0); self.state.len()];
-
-        for (index, &amplitude) in self.state.iter().enumerate() {
-            let destination = if index & control_mask == 0 {
-                index
-            } else {
-                let target_value = Self::extract_register_value(index, targets);
-                let mapped_value = permutation[target_value];
-                Self::replace_register_value(index, targets, mapped_value)
-            };
-            next_state[destination] += amplitude;
-        }
-
-        self.state = next_state;
+        self.apply_controlled_basis_permutation_unchecked(control, targets, permutation);
         self.operations.push(Operation::ControlledBasisPermutation {
             control,
             targets: targets.to_vec(),
             permutation: permutation.to_vec(),
+        });
+        Ok(())
+    }
+
+    pub fn controlled_modular_multiply(
+        &mut self,
+        control: usize,
+        targets: &[usize],
+        multiplier: u64,
+        modulus: u64,
+    ) -> Result<(), QuantumError> {
+        self.validate_qubit(control)?;
+        self.validate_qubits(targets)?;
+        if targets.contains(&control) {
+            return Err(QuantumError::DuplicateQubit {
+                q1: control,
+                q2: control,
+            });
+        }
+
+        let register_len = 1usize
+            .checked_shl(targets.len() as u32)
+            .ok_or(QuantumError::InvalidNumQubits)?;
+        let modulus_usize =
+            usize::try_from(modulus).map_err(|_| QuantumError::InvalidArithmeticInput)?;
+
+        if modulus < 2 || modulus_usize > register_len || gcd(multiplier, modulus) != 1 {
+            return Err(QuantumError::InvalidArithmeticInput);
+        }
+
+        let mut permutation: Vec<usize> = (0..register_len).collect();
+        for (value, mapped) in permutation.iter_mut().enumerate().take(modulus_usize) {
+            *mapped = ((multiplier as u128 * value as u128) % modulus as u128) as usize;
+        }
+        self.validate_permutation(targets.len(), &permutation)?;
+
+        self.apply_controlled_basis_permutation_unchecked(control, targets, &permutation);
+        self.operations.push(Operation::ControlledModularMultiply {
+            control,
+            targets: targets.to_vec(),
+            multiplier,
+            modulus,
         });
         Ok(())
     }
@@ -491,6 +525,29 @@ impl QuantumCircuit {
                 *amplitude *= phase;
             }
         }
+    }
+
+    fn apply_controlled_basis_permutation_unchecked(
+        &mut self,
+        control: usize,
+        targets: &[usize],
+        permutation: &[usize],
+    ) {
+        let control_mask = 1usize << control;
+        let mut next_state = vec![Complex64::new(0.0, 0.0); self.state.len()];
+
+        for (index, &amplitude) in self.state.iter().enumerate() {
+            let destination = if index & control_mask == 0 {
+                index
+            } else {
+                let target_value = Self::extract_register_value(index, targets);
+                let mapped_value = permutation[target_value];
+                Self::replace_register_value(index, targets, mapped_value)
+            };
+            next_state[destination] += amplitude;
+        }
+
+        self.state = next_state;
     }
 
     fn reverse_qubit_order_unchecked(&mut self, qubits: &[usize]) {
