@@ -1,4 +1,9 @@
-use crate::{gates, postprocessing::gcd, utils::basis_label, QuantumError};
+use crate::{
+    gates,
+    postprocessing::{gcd, mod_pow},
+    utils::basis_label,
+    QuantumError,
+};
 use num_complex::Complex64;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -59,6 +64,13 @@ pub enum Operation {
         control: usize,
         targets: Vec<usize>,
         multiplier: u64,
+        modulus: u64,
+    },
+    ControlledModularMultiplyPower {
+        control: usize,
+        targets: Vec<usize>,
+        base: u64,
+        power: u64,
         modulus: u64,
     },
     Qft {
@@ -349,6 +361,28 @@ impl QuantumCircuit {
             multiplier,
             modulus,
         });
+        Ok(())
+    }
+
+    pub fn controlled_modular_multiply_power(
+        &mut self,
+        control: usize,
+        targets: &[usize],
+        base: u64,
+        power: u64,
+        modulus: u64,
+    ) -> Result<(), QuantumError> {
+        let multiplier = mod_pow(base, power, modulus)?;
+        self.controlled_modular_multiply(control, targets, multiplier, modulus)?;
+        self.operations.pop();
+        self.operations
+            .push(Operation::ControlledModularMultiplyPower {
+                control,
+                targets: targets.to_vec(),
+                base,
+                power,
+                modulus,
+            });
         Ok(())
     }
 

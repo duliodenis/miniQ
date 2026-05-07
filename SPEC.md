@@ -33,7 +33,7 @@ cargo run --bin miniq -- bell
 cargo run --bin miniq -- period
 ```
 
-Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, controlled basis permutations, controlled modular multiplication, a small phase-estimation helper for known controlled-phase eigenvalues, and postprocessing helpers for gcd, modular exponentiation, continued fractions, classical period finding, phase-to-period recovery, factor extraction from a known period, and factor extraction via classical period finding. The `shor_known_period_15` example factors 15 from a supplied and classically verified period, and `shor_phase_sample_15` factors 15 from a supplied phase sample. Remaining work includes modular exponentiation circuits so the emulator can produce phase samples for modular functions.
+Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, controlled basis permutations, controlled modular multiplication, controlled modular-multiply powers, a small phase-estimation helper for known controlled-phase eigenvalues, and postprocessing helpers for gcd, modular exponentiation, continued fractions, classical period finding, phase-to-period recovery, factor extraction from a known period, and factor extraction via classical period finding. The `shor_known_period_15` example factors 15 from a supplied and classically verified period, and `shor_phase_sample_15` factors 15 from a supplied phase sample. Remaining work includes composing modular-multiply powers into modular exponentiation circuits so the emulator can produce phase samples for modular functions.
 
 ⸻
 
@@ -210,6 +210,7 @@ pub enum Operation {
     ControlledPhase { control: usize, target: usize, theta: f64 },
     ControlledBasisPermutation { control: usize, targets: Vec<usize>, permutation: Vec<usize> },
     ControlledModularMultiply { control: usize, targets: Vec<usize>, multiplier: u64, modulus: u64 },
+    ControlledModularMultiplyPower { control: usize, targets: Vec<usize>, base: u64, power: u64, modulus: u64 },
     Qft { qubits: Vec<usize> },
     InverseQft { qubits: Vec<usize> },
     Measure { target: usize, result: u8 },
@@ -319,6 +320,14 @@ pub fn controlled_modular_multiply(
     control: usize,
     targets: &[usize],
     multiplier: u64,
+    modulus: u64
+) -> Result<(), QuantumError>;
+pub fn controlled_modular_multiply_power(
+    &mut self,
+    control: usize,
+    targets: &[usize],
+    base: u64,
+    power: u64,
     modulus: u64
 ) -> Result<(), QuantumError>;
 
