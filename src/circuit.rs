@@ -92,6 +92,10 @@ pub enum Operation {
     MeasureAll {
         result: String,
     },
+    MeasureRegister {
+        qubits: Vec<usize>,
+        result: usize,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -454,6 +458,10 @@ impl QuantumCircuit {
 
     pub fn measure_all(&mut self) -> Result<String, QuantumError> {
         crate::measurement::measure_all(self)
+    }
+
+    pub fn measure_register(&mut self, qubits: &[usize]) -> Result<usize, QuantumError> {
+        crate::measurement::measure_register(self, qubits)
     }
 
     pub fn state(&self) -> &[Complex64] {

@@ -45,3 +45,31 @@ fn shor_order_finding_circuit_entangles_counting_and_work_registers() {
         assert!((actual_probability - expected_probability).abs() < 1e-10);
     }
 }
+
+#[test]
+fn measuring_work_register_collapses_counting_register_to_periodic_pair() {
+    let mut qc = QuantumCircuit::from_basis_state(7, 1).unwrap();
+    for control in [4, 5, 6] {
+        qc.h(control).unwrap();
+    }
+    qc.modular_exponentiation(&[4, 5, 6], &[0, 1, 2, 3], 7, 15)
+        .unwrap();
+
+    let work_value = qc.measure_register(&[0, 1, 2, 3]).unwrap();
+    let probabilities = qc.probabilities(1e-10);
+
+    assert!([1, 4, 7, 13].contains(&work_value));
+    assert_eq!(probabilities.len(), 2);
+    for (_, probability) in &probabilities {
+        assert!((probability - 0.5).abs() < 1e-10);
+    }
+
+    let exponents: Vec<usize> = probabilities
+        .iter()
+        .map(|(label, _)| {
+            let index = usize::from_str_radix(label, 2).unwrap();
+            (index >> 4) & 0b111
+        })
+        .collect();
+    assert_eq!(exponents[1] - exponents[0], 4);
+}

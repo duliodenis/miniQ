@@ -36,6 +36,7 @@ cargo run --example modular_exponentiation_demo
 cargo run --example period_finding_classical_demo
 cargo run --example phase_estimation_demo
 cargo run --example shor_order_finding_circuit_15
+cargo run --example shor_work_measurement_15
 cargo run --example shor_known_period_15
 cargo run --example shor_phase_sample_15
 cargo run --example shor_placeholder
