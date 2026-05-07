@@ -18,6 +18,7 @@ enum Command {
     Superposition,
     Swap,
     Period,
+    Modexp,
 }
 
 fn main() -> Result<()> {
@@ -61,6 +62,24 @@ fn main() -> Result<()> {
                 }
                 None => println!("No period found up to {max_period}."),
             }
+        }
+        Command::Modexp => {
+            let n = 15;
+            let a = 7;
+            let initial_target = 3;
+            let exponent = 3;
+            let controls = [4, 5];
+            let targets = [0, 1, 2, 3];
+
+            let mut qc = QuantumCircuit::from_basis_state(6, 0b11_0011)?;
+            qc.modular_exponentiation(&controls, &targets, a, n)?;
+
+            println!("N = {n}");
+            println!("a = {a}");
+            println!("controls encode exponent = {exponent}");
+            println!("target starts as {initial_target}");
+            println!("target maps to {initial_target} * {a}^{exponent} mod {n} = 9");
+            qc.print_state(1e-12);
         }
     }
     Ok(())
