@@ -72,6 +72,7 @@ cargo run --bin miniq -- --help
 ## Guides
 
 - [GitHub Pages landing page](https://duliodenis.github.io/miniQ/)
+- [Quantum computing primer](https://duliodenis.github.io/miniQ/quantum-primer.html)
 - [Educational Shor factor-15 walkthrough](https://duliodenis.github.io/miniQ/shor-factor-15.html)
 - [Changelog](CHANGELOG.md)
 
