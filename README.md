@@ -1,44 +1,48 @@
 # miniQ
 
-`miniQ` is a small educational quantum computer emulator written in Rust. It uses a full state-vector simulator, so an `n`-qubit circuit is represented by `2^n` complex amplitudes stored as `Vec<Complex64>`.
+miniQ is a small educational quantum computer emulator written in Rust. It uses a full state-vector simulator, so an `n`-qubit circuit is represented by `2^n` complex amplitudes stored as `Vec<Complex64>`.
 
 The simulator uses little-endian qubit indexing internally: qubit `0` is the least significant bit of the basis-state index. Displayed bitstrings are printed most-significant-bit first, so index `5` in a three-qubit circuit appears as `101`.
 
-## What It Supports
+## Current Status
 
+miniQ currently supports:
+
+- State-vector simulation with direct gate application, no full `2^n x 2^n` matrices
 - Single-qubit gates: X, Y, Z, H, S, T, Rx, Ry, Rz
 - Two-qubit gates: CNOT, CZ, SWAP, controlled phase
-- Controlled basis permutations for toy algorithm infrastructure
-- Controlled modular multiplication, modular-multiply powers, and modular exponentiation
-- Register transforms: QFT and inverse QFT
-- Algorithm helper: phase estimation for a known controlled-phase eigenvalue
-- Postprocessing helpers for `gcd`, modular exponentiation, and continued fractions
-- Measurement with state collapse and renormalization
+- Measurement of one qubit, all qubits, or a selected little-endian register
 - Operation history through `Operation`
-- Probability/state inspection helpers
-- Construction helpers including `from_basis_state` and `num_qubits`
+- QFT and inverse QFT over selected registers
+- Controlled basis permutations
+- Controlled modular multiplication, modular-multiply powers, and modular exponentiation
+- Phase-estimation and configurable order-finding helpers
+- Postprocessing helpers for gcd, modular exponentiation, continued fractions, period recovery, and factor extraction
+- A retrying toy Shor-style factor-15 path
 
-Gate and permutation application updates the state vector directly. It does not build full `2^n x 2^n` matrices.
-
-## Memory Growth
-
-State-vector simulation is exact for small circuits, but memory doubles with every added qubit. A 30-qubit state needs over one billion complex amplitudes. That is why this crate is useful for learning and small algorithm demos, not for large-scale quantum workloads.
-
-## Running
+## Example Progression
 
 ```sh
 cargo test
+
 cargo run --example bell_state
 cargo run --example superposition
 cargo run --example swap_demo
 cargo run --example grover_2qubit_demo
+
+cargo run --example phase_estimation_demo
 cargo run --example modular_exponentiation_demo
 cargo run --example period_finding_classical_demo
-cargo run --example phase_estimation_demo
+
 cargo run --example shor_order_finding_circuit_15
 cargo run --example shor_work_measurement_15
 cargo run --example shor_period_recovery_15
 cargo run --example shor_factor_15
+```
+
+Additional Shor-related examples:
+
+```sh
 cargo run --example shor_known_period_15
 cargo run --example shor_phase_sample_15
 cargo run --example shor_placeholder
@@ -54,10 +58,12 @@ cargo run --bin miniq -- period
 cargo run --bin miniq -- modexp
 ```
 
-## RSA-896
+## Limits
 
-This emulator cannot factor RSA-896. Shor's algorithm for numbers of that size requires far more qubits, error correction, coherent depth, and memory than a classical full state-vector simulator can provide. The practical memory requirement grows exponentially, while RSA-scale factoring also needs fault-tolerant quantum hardware.
+State-vector simulation is exact for small circuits, but memory doubles with every added qubit. A 30-qubit state needs over one billion complex amplitudes. miniQ is useful for learning and small algorithm demos, not for large-scale quantum workloads.
 
-## Future Shor Support
+miniQ cannot factor RSA-896. RSA-scale Shor factoring requires far more qubits, fault tolerance, error correction, and coherent depth than a classical full state-vector emulator can provide. The `shor_factor_15` example is intentionally toy-scale and educational.
 
-QFT, inverse QFT, controlled basis permutations, controlled modular multiplication, modular-multiply powers, modular exponentiation, configurable order-finding attempts, a small phase-estimation helper, and postprocessing helpers are now available as the first Shor-oriented building blocks. The `shor_factor_15` example is a retrying toy Shor-style path for factoring `15`; it is educational and not RSA-scale factoring.
+## Future Work
+
+Good next steps include making the order-finding API more ergonomic, adding more toy-number examples, improving CLI output, and documenting the toy Shor pipeline in a guide. The project should continue to make a clear distinction between educational small-number Shor demos and real fault-tolerant quantum factoring.

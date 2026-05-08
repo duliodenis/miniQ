@@ -1,4 +1,4 @@
-# Specification: Small Quantum Computer Emulator in Rust
+# Specification: miniQ
 
 Project Name
 
@@ -8,13 +8,37 @@ Purpose
 
 Build a small educational quantum computer emulator in Rust using a full state-vector simulation model.
 
-The emulator must support basic quantum gates, measurement, entanglement, circuit inspection, and enough structure to later implement toy versions of Shor’s algorithm, such as factoring 15 or 21.
+The emulator supports basic quantum gates, measurement, entanglement, circuit inspection, QFT/inverse QFT, controlled modular arithmetic, and a toy Shor-style factor-15 path.
 
 This emulator is not intended to factor real RSA numbers. It is designed to help us understand and test small quantum algorithms.
 
-This implementation uses a full state-vector simulator: an `n`-qubit circuit stores `2^n` complex amplitudes in `Vec<Complex64>`. That model is exact and easy to inspect, but memory doubles for each additional qubit. It is appropriate for tiny examples such as Bell states, two-qubit Grover, and future toy Shor demos for numbers like 15 or 21.
+This implementation uses a full state-vector simulator: an `n`-qubit circuit stores `2^n` complex amplitudes in `Vec<Complex64>`. That model is exact and easy to inspect, but memory doubles for each additional qubit. It is appropriate for tiny examples such as Bell states, two-qubit Grover, and toy Shor demos for numbers like 15.
 
 It cannot factor RSA-896. Factoring RSA-896 would require a fault-tolerant quantum implementation with many logical and physical qubits, long coherent computations, and resources far beyond a classical full state-vector emulator.
+
+Current Status
+
+Implemented:
+
+* Full state-vector simulation with direct state updates.
+* Little-endian qubit/register indexing internally and MSB-first displayed bitstrings.
+* Single-qubit gates: X, Y, Z, H, S, T, Rx, Ry, Rz.
+* Two-qubit gates: CNOT, CZ, SWAP, controlled phase.
+* Measurement of one qubit, all qubits, or selected little-endian registers.
+* QFT and inverse QFT over selected registers.
+* Controlled basis permutations.
+* Controlled modular multiplication, modular-multiply powers, and modular exponentiation.
+* Phase estimation and configurable order-finding attempts.
+* Postprocessing helpers for gcd, modular exponentiation, continued fractions, period recovery, and factor extraction.
+* A retrying toy Shor-style factor-15 example.
+
+Not Implemented / Limits
+
+* No fault tolerance or error correction.
+* No RSA-scale factoring.
+* No claim of quantum advantage; this is a classical state-vector emulator.
+* Memory growth is exponential in qubit count.
+* Toy Shor support is educational and currently centered on factor 15.
 
 Run the project with:
 
@@ -39,7 +63,17 @@ cargo run --bin miniq -- period
 cargo run --bin miniq -- modexp
 ```
 
-Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, controlled basis permutations, controlled modular multiplication, controlled modular-multiply powers, modular exponentiation, configurable order-finding attempts, a small phase-estimation helper for known controlled-phase eigenvalues, and postprocessing helpers for gcd, modular exponentiation, continued fractions, classical period finding, phase-to-period recovery, factor extraction from a known period, and factor extraction via classical period finding. The `shor_factor_15` example is a retrying toy Shor-style factorization path for 15. It is educational and still far from RSA-scale factoring.
+Example Progression
+
+* `bell_state`: entanglement.
+* `phase_estimation_demo`: inverse QFT as phase readout.
+* `modular_exponentiation_demo`: reversible modular arithmetic.
+* `shor_order_finding_circuit_15`: modular exponentiation over a counting superposition.
+* `shor_work_measurement_15`: work-register measurement collapses counting states into a periodic pattern.
+* `shor_period_recovery_15`: inverse QFT, phase recovery, period recovery, and factor extraction.
+* `shor_factor_15`: retrying toy Shor-style factorization of 15.
+
+Future work should improve robustness/generalization of the toy Shor path, add more small-number examples, improve CLI ergonomics, and keep the RSA-scale limitations explicit.
 
 ⸻
 
@@ -98,7 +132,7 @@ with amplitude 1.0 + 0.0i.
 
 Recommended Project Structure
 
-mini-q/
+miniQ/
   Cargo.toml
   README.md
   src/
@@ -588,9 +622,9 @@ File:
 
 examples/shor_placeholder.rs
 
-This should compile and print a message explaining that Shor’s algorithm will be added in a later milestone.
+This should compile and point users to the current toy Shor-style factor-15 demo while clearly stating that full Shor/RSA-scale factoring is not implemented.
 
-Include comments explaining the future steps:
+It should distinguish the educational factor-15 path from future work such as:
 
 1. Choose N, such as 15.
 2. Choose a where gcd(a, N) = 1.
@@ -602,26 +636,22 @@ Include comments explaining the future steps:
 
 ⸻
 
-Future Shor’s Algorithm Requirements
+Toy Shor Support
 
-Do not implement full Shor’s algorithm in this first milestone.
+miniQ now includes a toy Shor-style path for factoring 15. It includes QFT,
+inverse QFT, modular exponentiation, register measurement, period recovery, and
+factor extraction. This is educational small-number support, not full Shor for
+large integers.
 
-However, design the API so a later milestone can add:
+Current toy Shor examples include:
 
-pub fn qft(&mut self, qubits: &[usize]) -> Result<(), QuantumError>;
-pub fn inverse_qft(&mut self, qubits: &[usize]) -> Result<(), QuantumError>;
-pub fn controlled_unitary(...);
-pub fn modular_exponentiation(...);
-
-A later milestone should include:
-
+examples/shor_order_finding_circuit_15.rs
+examples/shor_work_measurement_15.rs
+examples/shor_period_recovery_15.rs
 examples/shor_factor_15.rs
 
-The first realistic Shor target should be:
-
-15
-
-not RSA-896.
+Future Shor work should improve robustness, add more small composite examples,
+and keep RSA-scale limitations explicit.
 
 ⸻
 
@@ -776,7 +806,7 @@ The implementation is accepted when:
     * Why memory scales as 2^n.
     * How to run examples and tests.
     * Why this cannot factor RSA-896.
-    * How future Shor’s algorithm support will be added.
+    * What toy Shor support exists and why it is not RSA-scale factoring.
 8. Gate application avoids building full 2^n x 2^n matrices.
 
 ⸻
