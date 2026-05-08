@@ -4,15 +4,25 @@ use crate::{
 };
 use std::f64::consts::PI;
 
+/// Result from one stochastic toy Shor factor-15 attempt.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ShorAttempt {
+    /// Measured little-endian work-register value.
     pub work_value: usize,
+    /// Measured little-endian counting-register value.
     pub counting_value: usize,
+    /// Phase estimate `counting_value / 2^num_counting_qubits`.
     pub phase: f64,
+    /// Recovered period when the phase sample is useful.
     pub period: Option<u64>,
+    /// Nontrivial factors when period postprocessing succeeds.
     pub factors: Option<(u64, u64)>,
 }
 
+/// Build a tiny phase-estimation circuit for a known controlled-phase eigenvalue.
+///
+/// This helper is educational: it estimates a supplied phase rather than a
+/// generic unitary.
 pub fn phase_estimation_for_phase(
     num_counting_qubits: usize,
     phase: f64,
@@ -40,6 +50,9 @@ pub fn phase_estimation_for_phase(
     Ok(circuit)
 }
 
+/// Try to recover factors from a single phase sample.
+///
+/// A phase of `0` is treated as uninformative and returns `Ok(None)`.
 pub fn try_factor_from_phase_sample(
     phase: f64,
     a: u64,
@@ -57,6 +70,11 @@ pub fn try_factor_from_phase_sample(
     factor_from_period(a, n, period)
 }
 
+/// Run one stochastic toy Shor-style attempt for factoring `15`.
+///
+/// The attempt prepares the order-finding circuit for `a = 7, N = 15`,
+/// measures the work register, applies inverse QFT to the counting register,
+/// measures the phase sample, and attempts classical postprocessing.
 pub fn shor_factor_15_attempt() -> Result<ShorAttempt, QuantumError> {
     let n = 15;
     let a = 7;

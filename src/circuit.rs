@@ -6,6 +6,7 @@ use crate::{
 };
 use num_complex::Complex64;
 
+/// A recorded circuit operation or measurement result.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Operation {
     X {
@@ -98,6 +99,14 @@ pub enum Operation {
     },
 }
 
+/// A full state-vector quantum circuit.
+///
+/// miniQ stores amplitudes in little-endian basis-index order: qubit `0` is
+/// the least significant bit. Human-readable labels from [`probabilities`] and
+/// [`print_state`] are displayed most-significant-bit first.
+///
+/// [`probabilities`]: QuantumCircuit::probabilities
+/// [`print_state`]: QuantumCircuit::print_state
 #[derive(Debug, Clone)]
 pub struct QuantumCircuit {
     num_qubits: usize,
@@ -106,6 +115,7 @@ pub struct QuantumCircuit {
 }
 
 impl QuantumCircuit {
+    /// Create a circuit initialized to `|00...0>`.
     pub fn new(num_qubits: usize) -> Result<Self, QuantumError> {
         if num_qubits == 0 || num_qubits >= usize::BITS as usize {
             return Err(QuantumError::InvalidNumQubits);
@@ -126,6 +136,10 @@ impl QuantumCircuit {
         })
     }
 
+    /// Create a circuit initialized to a computational basis state.
+    ///
+    /// `basis_index` uses the same little-endian numeric basis indexing as the
+    /// simulator state vector.
     pub fn from_basis_state(num_qubits: usize, basis_index: usize) -> Result<Self, QuantumError> {
         let len = Self::state_len(num_qubits)?;
         if basis_index >= len {
@@ -261,6 +275,9 @@ impl QuantumCircuit {
         Ok(())
     }
 
+    /// Apply the quantum Fourier transform to selected qubits.
+    ///
+    /// The `qubits` slice is treated as a little-endian register.
     pub fn qft(&mut self, qubits: &[usize]) -> Result<(), QuantumError> {
         self.validate_qubits(qubits)?;
 
@@ -282,6 +299,9 @@ impl QuantumCircuit {
         Ok(())
     }
 
+    /// Apply the inverse quantum Fourier transform to selected qubits.
+    ///
+    /// The `qubits` slice is treated as a little-endian register.
     pub fn inverse_qft(&mut self, qubits: &[usize]) -> Result<(), QuantumError> {
         self.validate_qubits(qubits)?;
 
@@ -306,6 +326,10 @@ impl QuantumCircuit {
         Ok(())
     }
 
+    /// Apply a controlled reversible permutation over a target register.
+    ///
+    /// `targets` is a little-endian register. `permutation[x]` gives the new
+    /// target-register value when `control` is `1`.
     pub fn apply_controlled_basis_permutation(
         &mut self,
         control: usize,
@@ -332,6 +356,11 @@ impl QuantumCircuit {
         Ok(())
     }
 
+    /// Apply controlled modular multiplication to a little-endian target register.
+    ///
+    /// Values below `modulus` map to `(multiplier * x) mod modulus`; values
+    /// outside the modular range are left fixed to keep the operation reversible
+    /// over the full target-register space.
     pub fn controlled_modular_multiply(
         &mut self,
         control: usize,
@@ -358,6 +387,10 @@ impl QuantumCircuit {
         Ok(())
     }
 
+    /// Apply controlled multiplication by `base^power mod modulus`.
+    ///
+    /// This is the power-controlled shape used by Shor-style modular
+    /// exponentiation circuits.
     pub fn controlled_modular_multiply_power(
         &mut self,
         control: usize,
@@ -388,6 +421,10 @@ impl QuantumCircuit {
         Ok(())
     }
 
+    /// Apply modular exponentiation controlled by a little-endian exponent register.
+    ///
+    /// `controls[k]` controls multiplication by `base^(2^k) mod modulus`.
+    /// `targets` is the little-endian work register.
     pub fn modular_exponentiation(
         &mut self,
         controls: &[usize],
@@ -425,6 +462,7 @@ impl QuantumCircuit {
         Ok(())
     }
 
+    /// Apply a custom 2x2 single-qubit gate matrix.
     pub fn apply_single_qubit_gate(
         &mut self,
         matrix: [[Complex64; 2]; 2],
@@ -452,22 +490,27 @@ impl QuantumCircuit {
         Ok(())
     }
 
+    /// Measure one qubit, collapse the state, and return `0` or `1`.
     pub fn measure(&mut self, target: usize) -> Result<u8, QuantumError> {
         crate::measurement::measure(self, target)
     }
 
+    /// Measure all qubits and return a most-significant-bit-first bitstring.
     pub fn measure_all(&mut self) -> Result<String, QuantumError> {
         crate::measurement::measure_all(self)
     }
 
+    /// Measure selected qubits as a little-endian register and return its value.
     pub fn measure_register(&mut self, qubits: &[usize]) -> Result<usize, QuantumError> {
         crate::measurement::measure_register(self, qubits)
     }
 
+    /// Borrow the raw state vector.
     pub fn state(&self) -> &[Complex64] {
         &self.state
     }
 
+    /// Return displayed basis labels and probabilities above `threshold`.
     pub fn probabilities(&self, threshold: f64) -> Vec<(String, f64)> {
         self.state
             .iter()
@@ -480,6 +523,7 @@ impl QuantumCircuit {
             .collect()
     }
 
+    /// Print amplitudes whose probabilities are above `threshold`.
     pub fn print_state(&self, threshold: f64) {
         for (index, amplitude) in self.state.iter().enumerate() {
             if amplitude.norm_sqr() > threshold {
@@ -488,6 +532,7 @@ impl QuantumCircuit {
         }
     }
 
+    /// Return the squared state-vector norm.
     pub fn norm(&self) -> f64 {
         self.state
             .iter()
@@ -495,6 +540,7 @@ impl QuantumCircuit {
             .sum()
     }
 
+    /// Check that the state-vector norm is approximately one.
     pub fn assert_normalized(&self, tolerance: f64) -> Result<(), QuantumError> {
         let norm = self.norm();
         if (norm - 1.0).abs() <= tolerance {
@@ -504,10 +550,12 @@ impl QuantumCircuit {
         }
     }
 
+    /// Return the recorded operation history.
     pub fn operations(&self) -> &[Operation] {
         &self.operations
     }
 
+    /// Return the number of qubits in the circuit.
     pub fn num_qubits(&self) -> usize {
         self.num_qubits
     }

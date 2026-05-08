@@ -1,5 +1,6 @@
 use crate::QuantumError;
 
+/// Compute the greatest common divisor with Euclid's algorithm.
 pub fn gcd(mut a: u64, mut b: u64) -> u64 {
     while b != 0 {
         let remainder = a % b;
@@ -9,6 +10,7 @@ pub fn gcd(mut a: u64, mut b: u64) -> u64 {
     a
 }
 
+/// Compute `base^exponent mod modulus`.
 pub fn mod_pow(base: u64, exponent: u64, modulus: u64) -> Result<u64, QuantumError> {
     if modulus == 0 {
         return Err(QuantumError::InvalidArithmeticInput);
@@ -30,6 +32,7 @@ pub fn mod_pow(base: u64, exponent: u64, modulus: u64) -> Result<u64, QuantumErr
     Ok(result as u64)
 }
 
+/// Recover a denominator from a phase estimate using continued fractions.
 pub fn continued_fraction_denominator(phase: f64, max_denominator: u64) -> Option<u64> {
     if !phase.is_finite() || phase < 0.0 || max_denominator == 0 {
         return None;
@@ -65,6 +68,7 @@ pub fn continued_fraction_denominator(phase: f64, max_denominator: u64) -> Optio
     Some(best_denominator)
 }
 
+/// Extract nontrivial factors from a known period, as in Shor postprocessing.
 pub fn factor_from_period(a: u64, n: u64, period: u64) -> Result<Option<(u64, u64)>, QuantumError> {
     if n < 2 || period == 0 || period % 2 == 1 {
         return Err(QuantumError::InvalidArithmeticInput);
@@ -89,6 +93,10 @@ pub fn factor_from_period(a: u64, n: u64, period: u64) -> Result<Option<(u64, u6
     }
 }
 
+/// Recover a validated period from a phase sample.
+///
+/// The denominator from continued fractions is checked, then its multiples are
+/// tested until `a^r mod n == 1` or `max_period` is exceeded.
 pub fn recover_period_from_phase(
     phase: f64,
     a: u64,
@@ -122,6 +130,7 @@ pub fn recover_period_from_phase(
     Ok(None)
 }
 
+/// Brute-force the multiplicative period for tiny educational examples.
 pub fn find_period_classically(
     a: u64,
     n: u64,
@@ -140,6 +149,7 @@ pub fn find_period_classically(
     Ok(None)
 }
 
+/// Factor through brute-force classical period finding.
 pub fn factor_via_classical_period_finding(
     a: u64,
     n: u64,
