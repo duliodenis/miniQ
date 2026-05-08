@@ -58,6 +58,17 @@ cargo run --bin miniq -- period
 cargo run --bin miniq -- modexp
 ```
 
+The circuit demos print compact probability tables by default. Add `--shots` to
+sample repeated measurements from the final state, `--history` to show recorded
+operations, or `--state` to show raw nonzero amplitudes:
+
+```sh
+cargo run --bin miniq -- bell --shots 1000 --history
+cargo run --bin miniq -- superposition --shots 1000
+cargo run --bin miniq -- swap --state --history
+cargo run --bin miniq -- --help
+```
+
 ## Guides
 
 - [Educational Shor factor-15 walkthrough](docs/shor-factor-15.md)
@@ -71,4 +82,4 @@ miniQ cannot factor RSA-896. RSA-scale Shor factoring requires far more qubits, 
 
 ## Future Work
 
-Good next steps include making the order-finding API more ergonomic, adding more small-number examples, and improving CLI output. The project should continue to make a clear distinction between educational small-number Shor demos and real fault-tolerant quantum factoring.
+Good next steps include making the order-finding API more ergonomic, adding more small-number examples, and exploring a richer terminal or browser UI. The project should continue to make a clear distinction between educational small-number Shor demos and real fault-tolerant quantum factoring.

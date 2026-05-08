@@ -666,6 +666,8 @@ The CLI should support:
 cargo run --bin miniq -- bell
 cargo run --bin miniq -- superposition
 cargo run --bin miniq -- swap
+cargo run --bin miniq -- bell --shots 1000 --history
+cargo run --bin miniq -- swap --state --history
 
 Use clap if convenient.
 
@@ -673,7 +675,7 @@ Acceptance:
 
 cargo run --bin miniq -- bell
 
-prints Bell state probabilities.
+prints Bell state probabilities in a readable table.
 
 ⸻
 
