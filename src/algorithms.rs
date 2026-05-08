@@ -4,7 +4,7 @@ use crate::{
 };
 use std::f64::consts::PI;
 
-/// Result from one stochastic toy Shor factor-15 attempt.
+/// Result from one stochastic educational Shor factor-15 attempt.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ShorAttempt {
     /// Measured little-endian work-register value.
@@ -140,7 +140,7 @@ pub fn shor_order_finding_attempt(config: OrderFindingConfig) -> Result<ShorAtte
     })
 }
 
-/// Run one stochastic toy Shor-style attempt for factoring `15`.
+/// Run one stochastic educational Shor-style attempt for factoring `15`.
 pub fn shor_factor_15_attempt() -> Result<ShorAttempt, QuantumError> {
     shor_order_finding_attempt(OrderFindingConfig {
         n: 15,

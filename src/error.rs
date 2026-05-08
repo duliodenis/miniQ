@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-/// Error type used by miniQ circuit, measurement, and toy algorithm helpers.
+/// Error type used by miniQ circuit, measurement, and educational algorithm helpers.
 #[derive(Debug, Error, Clone, PartialEq)]
 pub enum QuantumError {
     #[error("invalid qubit index {index}; circuit has {num_qubits} qubits")]

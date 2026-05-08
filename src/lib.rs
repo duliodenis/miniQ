@@ -18,7 +18,7 @@
 //! # Ok::<(), mini_q::QuantumError>(())
 //! ```
 //!
-//! miniQ includes toy Shor-style building blocks for factoring `15`, but it is
+//! miniQ includes educational Shor-style building blocks for factoring `15`, but it is
 //! not RSA-scale factoring software.
 
 pub mod algorithms;

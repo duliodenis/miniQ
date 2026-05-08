@@ -5,7 +5,7 @@ fn main() -> anyhow::Result<()> {
     let a = 7;
     let max_attempts = 20;
 
-    println!("Toy Shor factoring demo");
+    println!("Educational Shor factoring demo");
     println!("N = {n}");
     println!("a = {a}");
 

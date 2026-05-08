@@ -18,7 +18,7 @@ miniQ currently supports:
 - Controlled modular multiplication, modular-multiply powers, and modular exponentiation
 - Phase-estimation and configurable order-finding helpers
 - Postprocessing helpers for gcd, modular exponentiation, continued fractions, period recovery, and factor extraction
-- A retrying toy Shor-style factor-15 path
+- A retrying educational Shor-style factor-15 path
 
 ## Example Progression
 
@@ -58,12 +58,17 @@ cargo run --bin miniq -- period
 cargo run --bin miniq -- modexp
 ```
 
+## Guides
+
+- [Educational Shor factor-15 walkthrough](docs/shor-factor-15.md)
+- [Changelog](CHANGELOG.md)
+
 ## Limits
 
 State-vector simulation is exact for small circuits, but memory doubles with every added qubit. A 30-qubit state needs over one billion complex amplitudes. miniQ is useful for learning and small algorithm demos, not for large-scale quantum workloads.
 
-miniQ cannot factor RSA-896. RSA-scale Shor factoring requires far more qubits, fault tolerance, error correction, and coherent depth than a classical full state-vector emulator can provide. The `shor_factor_15` example is intentionally toy-scale and educational.
+miniQ cannot factor RSA-896. RSA-scale Shor factoring requires far more qubits, fault tolerance, error correction, and coherent depth than a classical full state-vector emulator can provide. The `shor_factor_15` example is intentionally small-scale and educational.
 
 ## Future Work
 
-Good next steps include making the order-finding API more ergonomic, adding more toy-number examples, improving CLI output, and documenting the toy Shor pipeline in a guide. The project should continue to make a clear distinction between educational small-number Shor demos and real fault-tolerant quantum factoring.
+Good next steps include making the order-finding API more ergonomic, adding more small-number examples, and improving CLI output. The project should continue to make a clear distinction between educational small-number Shor demos and real fault-tolerant quantum factoring.

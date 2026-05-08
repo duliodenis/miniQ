@@ -8,11 +8,11 @@ Purpose
 
 Build a small educational quantum computer emulator in Rust using a full state-vector simulation model.
 
-The emulator supports basic quantum gates, measurement, entanglement, circuit inspection, QFT/inverse QFT, controlled modular arithmetic, and a toy Shor-style factor-15 path.
+The emulator supports basic quantum gates, measurement, entanglement, circuit inspection, QFT/inverse QFT, controlled modular arithmetic, and an educational Shor-style factor-15 path.
 
 This emulator is not intended to factor real RSA numbers. It is designed to help us understand and test small quantum algorithms.
 
-This implementation uses a full state-vector simulator: an `n`-qubit circuit stores `2^n` complex amplitudes in `Vec<Complex64>`. That model is exact and easy to inspect, but memory doubles for each additional qubit. It is appropriate for tiny examples such as Bell states, two-qubit Grover, and toy Shor demos for numbers like 15.
+This implementation uses a full state-vector simulator: an `n`-qubit circuit stores `2^n` complex amplitudes in `Vec<Complex64>`. That model is exact and easy to inspect, but memory doubles for each additional qubit. It is appropriate for tiny examples such as Bell states, two-qubit Grover, and educational Shor demos for numbers like 15.
 
 It cannot factor RSA-896. Factoring RSA-896 would require a fault-tolerant quantum implementation with many logical and physical qubits, long coherent computations, and resources far beyond a classical full state-vector emulator.
 
@@ -30,7 +30,7 @@ Implemented:
 * Controlled modular multiplication, modular-multiply powers, and modular exponentiation.
 * Phase estimation and configurable order-finding attempts.
 * Postprocessing helpers for gcd, modular exponentiation, continued fractions, period recovery, and factor extraction.
-* A retrying toy Shor-style factor-15 example.
+* A retrying educational Shor-style factor-15 example.
 
 Not Implemented / Limits
 
@@ -38,7 +38,7 @@ Not Implemented / Limits
 * No RSA-scale factoring.
 * No claim of quantum advantage; this is a classical state-vector emulator.
 * Memory growth is exponential in qubit count.
-* Toy Shor support is educational and currently centered on factor 15.
+* Educational Shor support is small-scale and currently centered on factor 15.
 
 Run the project with:
 
@@ -71,9 +71,9 @@ Example Progression
 * `shor_order_finding_circuit_15`: modular exponentiation over a counting superposition.
 * `shor_work_measurement_15`: work-register measurement collapses counting states into a periodic pattern.
 * `shor_period_recovery_15`: inverse QFT, phase recovery, period recovery, and factor extraction.
-* `shor_factor_15`: retrying toy Shor-style factorization of 15.
+* `shor_factor_15`: retrying educational Shor-style factorization of 15.
 
-Future work should improve robustness/generalization of the toy Shor path, add more small-number examples, improve CLI ergonomics, and keep the RSA-scale limitations explicit.
+Future work should improve robustness/generalization of the small-scale Shor path, add more small-number examples, improve CLI ergonomics, and keep the RSA-scale limitations explicit.
 
 ⸻
 
@@ -622,7 +622,7 @@ File:
 
 examples/shor_placeholder.rs
 
-This should compile and point users to the current toy Shor-style factor-15 demo while clearly stating that full Shor/RSA-scale factoring is not implemented.
+This should compile and point users to the current educational Shor-style factor-15 demo while clearly stating that full Shor/RSA-scale factoring is not implemented.
 
 It should distinguish the educational factor-15 path from future work such as:
 
@@ -636,14 +636,14 @@ It should distinguish the educational factor-15 path from future work such as:
 
 ⸻
 
-Toy Shor Support
+Educational Shor Support
 
-miniQ now includes a toy Shor-style path for factoring 15. It includes QFT,
+miniQ now includes an educational Shor-style path for factoring 15. It includes QFT,
 inverse QFT, modular exponentiation, register measurement, period recovery, and
 factor extraction. This is educational small-number support, not full Shor for
 large integers.
 
-Current toy Shor examples include:
+Current educational Shor examples include:
 
 examples/shor_order_finding_circuit_15.rs
 examples/shor_work_measurement_15.rs
@@ -806,7 +806,7 @@ The implementation is accepted when:
     * Why memory scales as 2^n.
     * How to run examples and tests.
     * Why this cannot factor RSA-896.
-    * What toy Shor support exists and why it is not RSA-scale factoring.
+    * What educational Shor support exists and why it is not RSA-scale factoring.
 8. Gate application avoids building full 2^n x 2^n matrices.
 
 ⸻

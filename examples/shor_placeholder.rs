@@ -1,5 +1,5 @@
 fn main() -> anyhow::Result<()> {
-    println!("A toy Shor-style factor-15 demo is available as:");
+    println!("An educational Shor-style factor-15 demo is available as:");
     println!("cargo run --example shor_factor_15");
     println!("Full Shor/RSA-scale factoring is not implemented.");
 
