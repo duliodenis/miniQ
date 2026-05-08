@@ -1,4 +1,5 @@
 use mini_q::{
+    algorithms::try_factor_from_phase_sample,
     postprocessing::{factor_from_period, recover_period_from_phase},
     QuantumCircuit,
 };
@@ -10,6 +11,19 @@ fn shor_style_phase_sample_pipeline_factors_fifteen() {
 
     let factors = factor_from_period(7, 15, period.unwrap()).unwrap();
     assert_eq!(factors, Some((3, 5)));
+}
+
+#[test]
+fn try_factor_from_phase_sample_factors_fifteen_for_useful_phase() {
+    assert_eq!(
+        try_factor_from_phase_sample(0.25, 7, 15, 32),
+        Ok(Some((3, 5)))
+    );
+}
+
+#[test]
+fn try_factor_from_phase_sample_returns_none_for_unhelpful_phase() {
+    assert_eq!(try_factor_from_phase_sample(0.0, 7, 15, 32), Ok(None));
 }
 
 #[test]

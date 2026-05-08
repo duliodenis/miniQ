@@ -30,6 +30,7 @@ cargo run --example phase_estimation_demo
 cargo run --example shor_order_finding_circuit_15
 cargo run --example shor_work_measurement_15
 cargo run --example shor_period_recovery_15
+cargo run --example shor_factor_15
 cargo run --example shor_known_period_15
 cargo run --example shor_phase_sample_15
 cargo run --example shor_placeholder
@@ -38,7 +39,7 @@ cargo run --bin miniq -- period
 cargo run --bin miniq -- modexp
 ```
 
-Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, controlled basis permutations, controlled modular multiplication, controlled modular-multiply powers, modular exponentiation, a small phase-estimation helper for known controlled-phase eigenvalues, and postprocessing helpers for gcd, modular exponentiation, continued fractions, classical period finding, phase-to-period recovery, factor extraction from a known period, and factor extraction via classical period finding. The `shor_known_period_15` example factors 15 from a supplied and classically verified period, and `shor_phase_sample_15` factors 15 from a supplied phase sample. Remaining work includes connecting modular exponentiation to phase estimation so the emulator can produce phase samples for modular functions.
+Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, controlled basis permutations, controlled modular multiplication, controlled modular-multiply powers, modular exponentiation, a small phase-estimation helper for known controlled-phase eigenvalues, and postprocessing helpers for gcd, modular exponentiation, continued fractions, classical period finding, phase-to-period recovery, factor extraction from a known period, and factor extraction via classical period finding. The `shor_factor_15` example is a retrying toy Shor-style factorization path for 15. It is educational and still far from RSA-scale factoring.
 
 ⸻
 

@@ -38,6 +38,7 @@ cargo run --example phase_estimation_demo
 cargo run --example shor_order_finding_circuit_15
 cargo run --example shor_work_measurement_15
 cargo run --example shor_period_recovery_15
+cargo run --example shor_factor_15
 cargo run --example shor_known_period_15
 cargo run --example shor_phase_sample_15
 cargo run --example shor_placeholder
@@ -59,4 +60,4 @@ This emulator cannot factor RSA-896. Shor's algorithm for numbers of that size r
 
 ## Future Shor Support
 
-QFT, inverse QFT, controlled basis permutations, controlled modular multiplication, modular-multiply powers, modular exponentiation, a small phase-estimation helper, and postprocessing helpers are now available as the first Shor-oriented building blocks. The postprocessing module also includes tiny classical period finding and factor-via-period helpers for checking small examples. The `shor_known_period_15` example demonstrates factor extraction when a period is available, while `shor_phase_sample_15` turns a supplied phase sample into a period and factors for `15`. Future work should connect modular exponentiation to phase estimation so the emulator can produce phase samples for modular functions.
+QFT, inverse QFT, controlled basis permutations, controlled modular multiplication, modular-multiply powers, modular exponentiation, a small phase-estimation helper, and postprocessing helpers are now available as the first Shor-oriented building blocks. The postprocessing module also includes tiny classical period finding and factor-via-period helpers for checking small examples. The `shor_factor_15` example is a retrying toy Shor-style path for factoring `15`; it is educational and not RSA-scale factoring.

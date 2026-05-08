@@ -1,4 +1,7 @@
-use crate::{QuantumCircuit, QuantumError};
+use crate::{
+    postprocessing::{factor_from_period, recover_period_from_phase},
+    QuantumCircuit, QuantumError,
+};
 use std::f64::consts::PI;
 
 pub fn phase_estimation_for_phase(
@@ -26,4 +29,21 @@ pub fn phase_estimation_for_phase(
 
     circuit.inverse_qft(&counting_qubits)?;
     Ok(circuit)
+}
+
+pub fn try_factor_from_phase_sample(
+    phase: f64,
+    a: u64,
+    n: u64,
+    max_period: u64,
+) -> Result<Option<(u64, u64)>, QuantumError> {
+    if !phase.is_finite() || phase.fract().abs() < 1e-12 {
+        return Ok(None);
+    }
+
+    let Some(period) = recover_period_from_phase(phase, a, n, max_period)? else {
+        return Ok(None);
+    };
+
+    factor_from_period(a, n, period)
 }
