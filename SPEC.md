@@ -39,7 +39,7 @@ cargo run --bin miniq -- period
 cargo run --bin miniq -- modexp
 ```
 
-Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, controlled basis permutations, controlled modular multiplication, controlled modular-multiply powers, modular exponentiation, a small phase-estimation helper for known controlled-phase eigenvalues, and postprocessing helpers for gcd, modular exponentiation, continued fractions, classical period finding, phase-to-period recovery, factor extraction from a known period, and factor extraction via classical period finding. The `shor_factor_15` example is a retrying toy Shor-style factorization path for 15. It is educational and still far from RSA-scale factoring.
+Future Shor support now has its first building blocks: QFT, inverse QFT over selected qubits, controlled basis permutations, controlled modular multiplication, controlled modular-multiply powers, modular exponentiation, configurable order-finding attempts, a small phase-estimation helper for known controlled-phase eigenvalues, and postprocessing helpers for gcd, modular exponentiation, continued fractions, classical period finding, phase-to-period recovery, factor extraction from a known period, and factor extraction via classical period finding. The `shor_factor_15` example is a retrying toy Shor-style factorization path for 15. It is educational and still far from RSA-scale factoring.
 
 ⸻
 

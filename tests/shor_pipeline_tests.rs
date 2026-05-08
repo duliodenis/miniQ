@@ -1,7 +1,10 @@
 use mini_q::{
-    algorithms::{shor_factor_15_attempt, try_factor_from_phase_sample},
+    algorithms::{
+        shor_factor_15_attempt, shor_order_finding_attempt, try_factor_from_phase_sample,
+        OrderFindingConfig,
+    },
     postprocessing::{factor_from_period, recover_period_from_phase},
-    QuantumCircuit,
+    QuantumCircuit, QuantumError,
 };
 
 #[test]
@@ -37,6 +40,50 @@ fn shor_factor_15_attempt_returns_valid_measurement_record() {
         assert_eq!((factor_1, factor_2), (3, 5));
         assert_eq!(attempt.period, Some(4));
     }
+}
+
+#[test]
+fn order_finding_config_for_fifteen_returns_valid_measurement_record() {
+    let attempt = shor_order_finding_attempt(OrderFindingConfig {
+        n: 15,
+        a: 7,
+        num_counting_qubits: 3,
+        work_qubits: 4,
+        max_period: 32,
+    })
+    .unwrap();
+
+    assert!([1, 4, 7, 13].contains(&attempt.work_value));
+    assert!(attempt.counting_value < 8);
+    assert!((attempt.phase - attempt.counting_value as f64 / 8.0).abs() < 1e-12);
+}
+
+#[test]
+fn order_finding_config_rejects_modulus_too_large_for_work_register() {
+    assert_eq!(
+        shor_order_finding_attempt(OrderFindingConfig {
+            n: 15,
+            a: 7,
+            num_counting_qubits: 3,
+            work_qubits: 3,
+            max_period: 32,
+        }),
+        Err(QuantumError::InvalidArithmeticInput)
+    );
+}
+
+#[test]
+fn order_finding_config_rejects_non_coprime_base() {
+    assert_eq!(
+        shor_order_finding_attempt(OrderFindingConfig {
+            n: 15,
+            a: 5,
+            num_counting_qubits: 3,
+            work_qubits: 4,
+            max_period: 32,
+        }),
+        Err(QuantumError::InvalidArithmeticInput)
+    );
 }
 
 #[test]

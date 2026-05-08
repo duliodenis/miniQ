@@ -60,4 +60,4 @@ This emulator cannot factor RSA-896. Shor's algorithm for numbers of that size r
 
 ## Future Shor Support
 
-QFT, inverse QFT, controlled basis permutations, controlled modular multiplication, modular-multiply powers, modular exponentiation, a small phase-estimation helper, and postprocessing helpers are now available as the first Shor-oriented building blocks. The postprocessing module also includes tiny classical period finding and factor-via-period helpers for checking small examples. The `shor_factor_15` example is a retrying toy Shor-style path for factoring `15`; it is educational and not RSA-scale factoring.
+QFT, inverse QFT, controlled basis permutations, controlled modular multiplication, modular-multiply powers, modular exponentiation, configurable order-finding attempts, a small phase-estimation helper, and postprocessing helpers are now available as the first Shor-oriented building blocks. The `shor_factor_15` example is a retrying toy Shor-style path for factoring `15`; it is educational and not RSA-scale factoring.

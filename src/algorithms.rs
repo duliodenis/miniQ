@@ -1,5 +1,5 @@
 use crate::{
-    postprocessing::{factor_from_period, recover_period_from_phase},
+    postprocessing::{factor_from_period, gcd, recover_period_from_phase},
     QuantumCircuit, QuantumError,
 };
 use std::f64::consts::PI;
@@ -17,6 +17,19 @@ pub struct ShorAttempt {
     pub period: Option<u64>,
     /// Nontrivial factors when period postprocessing succeeds.
     pub factors: Option<(u64, u64)>,
+}
+
+/// Configuration for one Shor-style order-finding attempt.
+///
+/// Work qubits are assigned to `0..work_qubits`; counting qubits are assigned
+/// immediately after them. The work register starts in `|1>`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OrderFindingConfig {
+    pub n: u64,
+    pub a: u64,
+    pub num_counting_qubits: usize,
+    pub work_qubits: usize,
+    pub max_period: u64,
 }
 
 /// Build a tiny phase-estimation circuit for a known controlled-phase eigenvalue.
@@ -70,23 +83,42 @@ pub fn try_factor_from_phase_sample(
     factor_from_period(a, n, period)
 }
 
-/// Run one stochastic toy Shor-style attempt for factoring `15`.
+/// Run one stochastic Shor-style order-finding attempt.
 ///
-/// The attempt prepares the order-finding circuit for `a = 7, N = 15`,
-/// measures the work register, applies inverse QFT to the counting register,
-/// measures the phase sample, and attempts classical postprocessing.
-pub fn shor_factor_15_attempt() -> Result<ShorAttempt, QuantumError> {
-    let n = 15;
-    let a = 7;
-    let counting = [4, 5, 6];
-    let work = [0, 1, 2, 3];
-    let max_period = 32;
+/// The attempt prepares counting/work registers from the provided config,
+/// applies modular exponentiation, measures the work register, applies inverse
+/// QFT to the counting register, then attempts classical postprocessing.
+pub fn shor_order_finding_attempt(config: OrderFindingConfig) -> Result<ShorAttempt, QuantumError> {
+    if config.n < 2
+        || config.a == 0
+        || config.num_counting_qubits == 0
+        || config.work_qubits == 0
+        || config.max_period == 0
+        || gcd(config.a, config.n) != 1
+    {
+        return Err(QuantumError::InvalidArithmeticInput);
+    }
 
-    let mut circuit = QuantumCircuit::from_basis_state(7, 1)?;
+    let work_register_len = 1usize
+        .checked_shl(config.work_qubits as u32)
+        .ok_or(QuantumError::InvalidNumQubits)?;
+    let n_usize = usize::try_from(config.n).map_err(|_| QuantumError::InvalidArithmeticInput)?;
+    if n_usize > work_register_len {
+        return Err(QuantumError::InvalidArithmeticInput);
+    }
+
+    let total_qubits = config
+        .work_qubits
+        .checked_add(config.num_counting_qubits)
+        .ok_or(QuantumError::InvalidNumQubits)?;
+    let work: Vec<usize> = (0..config.work_qubits).collect();
+    let counting: Vec<usize> = (config.work_qubits..total_qubits).collect();
+
+    let mut circuit = QuantumCircuit::from_basis_state(total_qubits, 1)?;
     for &control in &counting {
         circuit.h(control)?;
     }
-    circuit.modular_exponentiation(&counting, &work, a, n)?;
+    circuit.modular_exponentiation(&counting, &work, config.a, config.n)?;
 
     let work_value = circuit.measure_register(&work)?;
     circuit.inverse_qft(&counting)?;
@@ -95,9 +127,9 @@ pub fn shor_factor_15_attempt() -> Result<ShorAttempt, QuantumError> {
     let period = if phase.fract().abs() < 1e-12 {
         None
     } else {
-        recover_period_from_phase(phase, a, n, max_period)?
+        recover_period_from_phase(phase, config.a, config.n, config.max_period)?
     };
-    let factors = try_factor_from_phase_sample(phase, a, n, max_period)?;
+    let factors = try_factor_from_phase_sample(phase, config.a, config.n, config.max_period)?;
 
     Ok(ShorAttempt {
         work_value,
@@ -105,5 +137,16 @@ pub fn shor_factor_15_attempt() -> Result<ShorAttempt, QuantumError> {
         phase,
         period,
         factors,
+    })
+}
+
+/// Run one stochastic toy Shor-style attempt for factoring `15`.
+pub fn shor_factor_15_attempt() -> Result<ShorAttempt, QuantumError> {
+    shor_order_finding_attempt(OrderFindingConfig {
+        n: 15,
+        a: 7,
+        num_counting_qubits: 3,
+        work_qubits: 4,
+        max_period: 32,
     })
 }
