@@ -71,7 +71,8 @@ cargo run --bin miniq -- --help
 
 ## Guides
 
-- [Educational Shor factor-15 walkthrough](docs/shor-factor-15.md)
+- [GitHub Pages landing page](docs/index.html)
+- [Educational Shor factor-15 walkthrough](docs/shor-factor-15.html)
 - [Changelog](CHANGELOG.md)
 
 ## Limits

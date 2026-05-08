@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="miniQ is an educational quantum computer emulator in Rust using full state-vector simulation."
+    >
+    <title>miniQ | Educational Quantum Emulator</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #040814;
+        --panel: #091226;
+        --panel-strong: #0d1830;
+        --text: #f7fbff;
+        --muted: #9baec9;
+        --cyan: #22c8ff;
+        --violet: #9567ff;
+        --line: rgba(255, 255, 255, 0.14);
+        --line-strong: rgba(34, 200, 255, 0.34);
+        --shadow: rgba(0, 0, 0, 0.42);
+        --max: 1120px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid var(--line);
+        background: rgba(4, 8, 20, 0.88);
+        backdrop-filter: blur(14px);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: min(100% - 32px, var(--max));
+        min-height: 64px;
+        margin: 0 auto;
+        gap: 16px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 10px;
+        text-decoration: none;
+      }
+
+      .brand-name {
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .brand-tag {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .github-link,
+      .button,
+      .copy-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        background: rgba(34, 200, 255, 0.08);
+        color: var(--text);
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .github-link {
+        padding: 8px 12px;
+      }
+
+      .github-link svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
+
+      main {
+        overflow: hidden;
+      }
+
+      section {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .hero {
+        padding: 40px 0 64px;
+      }
+
+      .hero-inner,
+      .section-inner {
+        width: min(100% - 32px, var(--max));
+        margin: 0 auto;
+      }
+
+      .hero-image-wrap {
+        overflow: hidden;
+        max-width: 720px;
+        margin: 0 auto;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 8px;
+        background: #01030b;
+        box-shadow: 0 28px 80px var(--shadow);
+      }
+
+      .hero-image {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .hero-copy {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+        gap: 32px;
+        align-items: end;
+        margin-top: 34px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 820px;
+        margin-bottom: 16px;
+        font-size: clamp(2.4rem, 6vw, 5.6rem);
+        line-height: 0.94;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 740px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: clamp(1.05rem, 2vw, 1.35rem);
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: flex-start;
+      }
+
+      .button {
+        padding: 10px 14px;
+      }
+
+      .button.primary {
+        border-color: transparent;
+        background: var(--cyan);
+        color: #01101a;
+      }
+
+      .button.secondary {
+        background: rgba(149, 103, 255, 0.11);
+        border-color: rgba(149, 103, 255, 0.42);
+      }
+
+      .section {
+        padding: 64px 0;
+      }
+
+      .section-heading {
+        max-width: 720px;
+        margin-bottom: 28px;
+      }
+
+      .section-heading h2 {
+        margin-bottom: 10px;
+        font-size: clamp(1.8rem, 3vw, 2.7rem);
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      .section-heading p {
+        margin-bottom: 0;
+        color: var(--muted);
+      }
+
+      .benefits {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .benefit {
+        min-height: 220px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(22px);
+        transition:
+          opacity 620ms ease,
+          transform 620ms ease,
+          border-color 620ms ease,
+          box-shadow 620ms ease;
+      }
+
+      .reveal:nth-child(2) {
+        transition-delay: 120ms;
+      }
+
+      .reveal:nth-child(3) {
+        transition-delay: 240ms;
+      }
+
+      .reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+        border-color: rgba(34, 200, 255, 0.3);
+        box-shadow: 0 18px 46px rgba(34, 200, 255, 0.08);
+      }
+
+      .benefit-index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        margin-bottom: 18px;
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        color: var(--cyan);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-weight: 800;
+      }
+
+      .benefit h3 {
+        margin-bottom: 10px;
+        font-size: 1.18rem;
+        letter-spacing: 0;
+      }
+
+      .benefit p {
+        margin-bottom: 0;
+        color: var(--muted);
+      }
+
+      .demo-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+        gap: 24px;
+        align-items: stretch;
+      }
+
+      .terminal,
+      .probability-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-strong);
+      }
+
+      .terminal {
+        overflow: hidden;
+      }
+
+      .terminal-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 48px;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .terminal-title {
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.88rem;
+      }
+
+      .copy-button {
+        min-height: 32px;
+        padding: 6px 10px;
+        font: inherit;
+        font-size: 0.84rem;
+      }
+
+      pre {
+        margin: 0;
+        padding: 20px;
+        overflow-x: auto;
+      }
+
+      code {
+        color: #d8f5ff;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.95rem;
+      }
+
+      .probability-panel {
+        padding: 22px;
+      }
+
+      .probability-panel h3 {
+        margin-bottom: 18px;
+      }
+
+      .prob-row {
+        display: grid;
+        grid-template-columns: 64px 1fr 64px;
+        gap: 12px;
+        align-items: center;
+        margin: 14px 0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      .track {
+        height: 12px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .fill {
+        height: 100%;
+        border-radius: inherit;
+        background: var(--cyan);
+      }
+
+      .fill.violet {
+        background: var(--violet);
+      }
+
+      .note {
+        margin-top: 18px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 24px;
+        align-items: start;
+      }
+
+      .fact-list {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .fact-list li {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        color: var(--muted);
+      }
+
+      .fact-list strong {
+        color: var(--text);
+      }
+
+      .site-footer {
+        padding: 30px 0;
+        color: var(--muted);
+      }
+
+      .footer-inner {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 16px;
+        width: min(100% - 32px, var(--max));
+        margin: 0 auto;
+      }
+
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .footer-links a {
+        color: var(--text);
+        text-decoration-color: rgba(34, 200, 255, 0.55);
+        text-underline-offset: 4px;
+      }
+
+      @media (max-width: 820px) {
+        .brand-tag {
+          display: none;
+        }
+
+        .hero {
+          padding-top: 24px;
+        }
+
+        .hero-copy,
+        .demo-grid,
+        .split {
+          grid-template-columns: 1fr;
+        }
+
+        .benefits {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-actions {
+          justify-content: flex-start;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        .reveal {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav" aria-label="Primary">
+        <a class="brand" href="#top" aria-label="miniQ home">
+          <span class="brand-name">miniQ</span>
+          <span class="brand-tag">Quantum computing emulator</span>
+        </a>
+        <a
+          class="github-link"
+          href="https://github.com/duliodenis/miniQ"
+          aria-label="View miniQ source on GitHub"
+        >
+          <svg aria-hidden="true" viewBox="0 0 16 16">
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.6 7.6 0 0 1 8 3.86c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+            ></path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-inner">
+          <div class="hero-image-wrap">
+            <img
+              class="hero-image"
+              src="miniQ-sm.jpeg"
+              width="500"
+              height="333"
+              alt="miniQ quantum computing emulator artwork with orbit paths, circuit symbols, and state labels"
+            >
+          </div>
+          <div class="hero-copy">
+            <div>
+              <h1 id="hero-title">An educational quantum emulator in Rust.</h1>
+              <p class="lead">
+                miniQ is a small full state-vector simulator for learning gates,
+                measurement, entanglement, QFT, and small-scale Shor-style
+                circuits without depending on quantum computing libraries.
+              </p>
+            </div>
+            <div class="hero-actions" aria-label="Primary links">
+              <a class="button primary" href="https://github.com/duliodenis/miniQ">
+                View Source
+              </a>
+              <a class="button secondary" href="shor-factor-15.html">
+                Factor-15 Guide
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="benefits-title">
+        <div class="section-inner">
+          <div class="section-heading">
+            <h2 id="benefits-title">Built For Learning By Inspection</h2>
+            <p>
+              miniQ keeps the simulation model visible, compact, and hackable.
+              It is designed for readers who want to see what the amplitudes are
+              doing after each circuit step.
+            </p>
+          </div>
+          <div class="benefits">
+            <article class="benefit reveal">
+              <span class="benefit-index">01</span>
+              <h3>Inspect The State</h3>
+              <p>
+                Read probabilities, amplitudes, norms, measurement collapse, and
+                most-significant-bit-first labels directly from the simulator.
+              </p>
+            </article>
+            <article class="benefit reveal">
+              <span class="benefit-index">02</span>
+              <h3>Compose Circuits</h3>
+              <p>
+                Apply core gates, controlled operations, SWAP, QFT, modular
+                arithmetic helpers, and track each operation in circuit history.
+              </p>
+            </article>
+            <article class="benefit reveal">
+              <span class="benefit-index">03</span>
+              <h3>Understand Scale</h3>
+              <p>
+                Work with exact state vectors while seeing why memory grows as
+                2^n, and why educational factor-15 demos are not RSA factoring.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="demo-title">
+        <div class="section-inner">
+          <div class="section-heading">
+            <h2 id="demo-title">A Tiny Circuit, Fully Visible</h2>
+            <p>
+              The CLI can display probabilities, operation history, raw state,
+              and measurement samples from built-in examples.
+            </p>
+          </div>
+          <div class="demo-grid">
+            <div class="terminal">
+              <div class="terminal-bar">
+                <span class="terminal-title">Bell state demo</span>
+                <button class="copy-button" type="button" data-copy="bell-command">
+                  Copy
+                </button>
+              </div>
+              <pre><code id="bell-command">cargo run --bin miniq -- bell --shots 1000 --history</code></pre>
+            </div>
+            <div class="probability-panel" aria-label="Bell state probability output">
+              <h3>Probabilities</h3>
+              <div class="prob-row">
+                <span>|00&gt;</span>
+                <span class="track"><span class="fill" style="width: 50%"></span></span>
+                <span>0.500</span>
+              </div>
+              <div class="prob-row">
+                <span>|11&gt;</span>
+                <span class="track"><span class="fill violet" style="width: 50%"></span></span>
+                <span>0.500</span>
+              </div>
+              <p class="note">
+                Bell measurements return only correlated outcomes: 00 or 11.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="quickstart-title">
+        <div class="section-inner split">
+          <div class="section-heading">
+            <h2 id="quickstart-title">Run It Locally</h2>
+            <p>
+              miniQ is a Rust crate and CLI. Clone the source, run the tests,
+              then try the examples from the command line.
+            </p>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <span class="terminal-title">Quickstart</span>
+              <button class="copy-button" type="button" data-copy="quickstart">
+                Copy
+              </button>
+            </div>
+            <pre><code id="quickstart">git clone https://github.com/duliodenis/miniQ.git
+cd miniQ
+cargo test
+cargo run --example bell_state
+cargo run --bin miniq -- swap --state --history</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="limits-title">
+        <div class="section-inner split">
+          <div class="section-heading">
+            <h2 id="limits-title">Exact, Small, And Honest About Scale</h2>
+            <p>
+              State-vector simulation is excellent for learning because every
+              amplitude is available. The cost is exponential memory growth.
+            </p>
+          </div>
+          <ul class="fact-list">
+            <li>
+              <strong>Storage:</strong> an n-qubit circuit stores 2^n complex
+              amplitudes in a Vec&lt;Complex64&gt;.
+            </li>
+            <li>
+              <strong>Indexing:</strong> qubit 0 is the least significant bit
+              internally, while displayed bitstrings read most-significant bit first.
+            </li>
+            <li>
+              <strong>Shor support:</strong> miniQ includes educational factor-15
+              walkthroughs, not fault-tolerant RSA-scale factoring.
+            </li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span>miniQ: educational quantum computing emulator</span>
+        <div class="footer-links">
+          <a href="https://github.com/duliodenis/miniQ">GitHub</a>
+          <a href="https://github.com/duliodenis/miniQ#readme">README</a>
+          <a href="shor-factor-15.html">Factor-15 Guide</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const copyButtons = document.querySelectorAll("[data-copy]");
+      const revealItems = document.querySelectorAll(".reveal");
+
+      for (const button of copyButtons) {
+        button.addEventListener("click", async () => {
+          const target = document.getElementById(button.dataset.copy);
+          if (!target) return;
+
+          try {
+            await navigator.clipboard.writeText(target.textContent.trim());
+            const original = button.textContent;
+            button.textContent = "Copied";
+            window.setTimeout(() => {
+              button.textContent = original;
+            }, 1300);
+          } catch {
+            button.textContent = "Select";
+            target.focus?.();
+          }
+        });
+      }
+
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.22 }
+        );
+
+        for (const item of revealItems) {
+          observer.observe(item);
+        }
+      } else {
+        for (const item of revealItems) {
+          item.classList.add("is-visible");
+        }
+      }
+    </script>
+  </body>
+</html>
