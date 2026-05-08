@@ -1,5 +1,5 @@
 use mini_q::{
-    algorithms::try_factor_from_phase_sample,
+    algorithms::{shor_factor_15_attempt, try_factor_from_phase_sample},
     postprocessing::{factor_from_period, recover_period_from_phase},
     QuantumCircuit,
 };
@@ -24,6 +24,19 @@ fn try_factor_from_phase_sample_factors_fifteen_for_useful_phase() {
 #[test]
 fn try_factor_from_phase_sample_returns_none_for_unhelpful_phase() {
     assert_eq!(try_factor_from_phase_sample(0.0, 7, 15, 32), Ok(None));
+}
+
+#[test]
+fn shor_factor_15_attempt_returns_valid_measurement_record() {
+    let attempt = shor_factor_15_attempt().unwrap();
+
+    assert!([1, 4, 7, 13].contains(&attempt.work_value));
+    assert!(attempt.counting_value < 8);
+    assert!((attempt.phase - attempt.counting_value as f64 / 8.0).abs() < 1e-12);
+    if let Some((factor_1, factor_2)) = attempt.factors {
+        assert_eq!((factor_1, factor_2), (3, 5));
+        assert_eq!(attempt.period, Some(4));
+    }
 }
 
 #[test]
